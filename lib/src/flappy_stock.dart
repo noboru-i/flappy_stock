@@ -1,13 +1,16 @@
 import 'dart:async';
 import 'package:flame/components.dart';
+import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'flappy_world.dart';
+import 'components/bird.dart';
 import 'config.dart';
 
 enum PlayState { welcome, playing, gameOver }
 
-class FlappyStock extends FlameGame with HasCollisionDetection {
+class FlappyStock extends FlameGame with HasCollisionDetection, KeyboardEvents {
   FlappyStock()
     : super(
         camera: CameraComponent.withFixedResolution(
@@ -39,6 +42,24 @@ class FlappyStock extends FlameGame with HasCollisionDetection {
     super.onLoad();
     camera.viewfinder.anchor = Anchor.topLeft;
     playState = PlayState.welcome;
+  }
+
+  @override
+  KeyEventResult onKeyEvent(
+    KeyEvent event,
+    Set<LogicalKeyboardKey> keysPressed,
+  ) {
+    if (event is KeyDownEvent &&
+        event.logicalKey == LogicalKeyboardKey.space) {
+      final flappyWorld = world as FlappyWorld;
+      if (playState != PlayState.playing) {
+        flappyWorld.startGame();
+      } else {
+        flappyWorld.children.query<Bird>().firstOrNull?.flap();
+      }
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
   }
 
   @override

@@ -34,12 +34,12 @@ class _GameAppState extends State<GameApp> {
                       child: GameWidget(
                         game: _game,
                         overlayBuilderMap: {
-                          PlayState.welcome.name: (_, __) =>
+                          PlayState.welcome.name: (_, _) =>
                               const OverlayScreen(
                                 title: 'FLAPPY STOCK',
                                 subtitle: 'TAP TO START',
                               ),
-                          PlayState.gameOver.name: (_, __) =>
+                          PlayState.gameOver.name: (_, _) =>
                               const OverlayScreen(
                                 title: 'GAME OVER',
                                 subtitle: 'TAP TO RETRY',

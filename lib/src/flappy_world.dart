@@ -27,7 +27,7 @@ class FlappyWorld extends World
   }
 
   // ─── ゲーム開始 ────────────────────────────────────────────────
-  void _startGame() {
+  void startGame() {
     removeAll(children.query<Bird>());
     removeAll(children.query<PipePair>());
 
@@ -74,7 +74,7 @@ class FlappyWorld extends World
   void onTapDown(TapDownEvent event) {
     super.onTapDown(event);
     if (game.playState != PlayState.playing) {
-      _startGame();
+      startGame();
     } else {
       children.query<Bird>().firstOrNull?.flap();
     }

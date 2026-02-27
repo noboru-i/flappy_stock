@@ -35,36 +35,55 @@ class PipePair extends PositionComponent
 
   static const _pipeColor = Color(0xff5aad3e);
 
+  // 表示幅は pipeWidth の 50%、当たり判定は表示幅の 50%（中央のみ）
+  static const _visualWidthFactor = 0.5;
+  static const _hitboxWidthFactor = 0.5;
+
   @override
   FutureOr<void> onLoad() async {
+    final visualWidth = pipeWidth * _visualWidthFactor;
+    final hitboxWidth = visualWidth * _hitboxWidthFactor;
+    final visualOffsetX = (pipeWidth - visualWidth) / 2;
+    final hitboxOffsetX = (visualWidth - hitboxWidth) / 2;
+
     // 上パイプ
     add(RectangleComponent(
-      position: Vector2.zero(),
-      size: Vector2(pipeWidth, gapTop),
+      position: Vector2(visualOffsetX, 0),
+      size: Vector2(visualWidth, gapTop),
       paint: Paint()..color = _pipeColor,
-      children: [RectangleHitbox()],
+      children: [
+        RectangleHitbox(
+          position: Vector2(hitboxOffsetX, 0),
+          size: Vector2(hitboxWidth, gapTop),
+        ),
+      ],
     ));
 
     // 下パイプ
     add(RectangleComponent(
-      position: Vector2(0, gapBottom),
-      size: Vector2(pipeWidth, gameHeight - gapBottom),
+      position: Vector2(visualOffsetX, gapBottom),
+      size: Vector2(visualWidth, gameHeight - gapBottom),
       paint: Paint()..color = _pipeColor,
-      children: [RectangleHitbox()],
+      children: [
+        RectangleHitbox(
+          position: Vector2(hitboxOffsetX, 0),
+          size: Vector2(hitboxWidth, gameHeight - gapBottom),
+        ),
+      ],
     ));
 
     // ボーナスゾーン可視化
     if (bonusTop != null) {
       add(_BonusZoneComponent(
-        position: Vector2(0, gapTop),
-        size: Vector2(pipeWidth, bonusTop! - gapTop),
+        position: Vector2(visualOffsetX, gapTop),
+        size: Vector2(visualWidth, bonusTop! - gapTop),
         topZone: true,
       ));
     }
     if (bonusBottom != null) {
       add(_BonusZoneComponent(
-        position: Vector2(0, bonusBottom!),
-        size: Vector2(pipeWidth, gapBottom - bonusBottom!),
+        position: Vector2(visualOffsetX, bonusBottom!),
+        size: Vector2(visualWidth, gapBottom - bonusBottom!),
         topZone: false,
       ));
     }

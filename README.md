@@ -1,3 +1,24 @@
-# flappy_stock
+# Flappy Stock
 
-A new Flutter project.
+Flutter + Flame で作った Flappy Bird ライクなゲーム。株価チャートをモチーフにしたパイプを避けながらスコアを伸ばす。
+
+## 技術スタック
+
+| 項目 | 内容 |
+|---|---|
+| フレームワーク | Flutter (Web ターゲット) |
+| ゲームエンジン | Flame ^1.28.1 |
+| レンダラー | CanvasKit |
+| 言語 | Dart |
+
+## 実行
+
+```bash
+flutter run -d chrome --web-renderer canvaskit
+```
+
+## ゲームの遊び方
+
+- 画面をタップ（クリック）すると鳥が羽ばたく
+- パイプと地面を避けてスコアを稼ぐ
+- ぶつかったらゲームオーバー。再タップでリトライ

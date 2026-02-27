@@ -23,9 +23,10 @@ class PipeLoader {
     for (final stage in stages) {
       for (final pipe in stage.pipes) {
         assert(
-          pipe.gapCenterY > pipeGap / 2 &&
-          pipe.gapCenterY < gameHeight - groundHeight - pipeGap / 2,
-          '[${stage.id}] gapCenterY out of range: ${pipe.gapCenterY}',
+          pipe.gapTop >= 0 &&
+          pipe.gapBottom > pipe.gapTop &&
+          pipe.gapBottom <= gameHeight - groundHeight,
+          '[${stage.id}] gapTop/gapBottom out of range: ${pipe.gapTop} / ${pipe.gapBottom}',
         );
       }
     }

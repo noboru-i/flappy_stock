@@ -23,7 +23,7 @@ lib/
         ├── score_card.dart       # ValueNotifier 連携スコア表示
         └── overlay_screen.dart   # ウェルカム / ゲームオーバー UI
 
-assets/data/pipes.json  # パイプ配置定義（ステージデータ）
+assets/data/pipes/  # パイプ配置定義（ステージデータ、stage_XX.json）
 ```
 
 ## 状態遷移
@@ -49,8 +49,8 @@ assets/data/pipes.json  # パイプ配置定義（ステージデータ）
 
 ### パイプ出現ロジック
 - `_traveledX` に毎フレーム `pipeSpeed * dt` を積算し、`_pendingPipes` の `spawnX` と比較してパイプを生成
-- パイプデータは `assets/data/pipes.json` で管理。`gapCenterY` の有効範囲：
-  `pipeGap / 2 < gapCenterY < gameHeight - groundHeight - pipeGap / 2`
+- パイプデータは `assets/data/pipes/` 以下の JSON で管理。各パイプに `gapTop`・`gapBottom` を指定する
+  有効範囲：`0 <= gapTop < gapBottom <= gameHeight - groundHeight`
 
 ### その他
 - Flame はホットリロード非対応。変更後は `R`（フルリスタート）を使う

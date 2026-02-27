@@ -9,14 +9,16 @@ class PipePair extends PositionComponent
     with HasGameReference<FlappyStock> {
 
   PipePair({
-    required this.gapCenterY,
+    required this.gapTop,
+    required this.gapBottom,
     required this.speed,
   }) : super(
     position: Vector2(gameWidth + pipeWidth, 0),
     anchor: Anchor.topLeft,
   );
 
-  final double gapCenterY;
+  final double gapTop;
+  final double gapBottom;
   final double speed;
   bool _scored = false;
 
@@ -27,16 +29,15 @@ class PipePair extends PositionComponent
     // 上パイプ
     add(RectangleComponent(
       position: Vector2.zero(),
-      size: Vector2(pipeWidth, gapCenterY - pipeGap / 2),
+      size: Vector2(pipeWidth, gapTop),
       paint: Paint()..color = _pipeColor,
       children: [RectangleHitbox()],
     ));
 
     // 下パイプ
-    final bottomY = gapCenterY + pipeGap / 2;
     add(RectangleComponent(
-      position: Vector2(0, bottomY),
-      size: Vector2(pipeWidth, gameHeight - bottomY),
+      position: Vector2(0, gapBottom),
+      size: Vector2(pipeWidth, gameHeight - gapBottom),
       paint: Paint()..color = _pipeColor,
       children: [RectangleHitbox()],
     ));

@@ -1,15 +1,18 @@
 class PipeData {
   const PipeData({
     required this.spawnX,
-    required this.gapCenterY,
+    required this.gapTop,
+    required this.gapBottom,
   });
 
   final double spawnX;
-  final double gapCenterY;
+  final double gapTop;
+  final double gapBottom;
 
   factory PipeData.fromJson(Map<String, dynamic> json) => PipeData(
-    spawnX:     (json['spawnX']     as num).toDouble(),
-    gapCenterY: (json['gapCenterY'] as num).toDouble(),
+    spawnX:    (json['spawnX']    as num).toDouble(),
+    gapTop:    (json['gapTop']    as num).toDouble(),
+    gapBottom: (json['gapBottom'] as num).toDouble(),
   );
 }
 

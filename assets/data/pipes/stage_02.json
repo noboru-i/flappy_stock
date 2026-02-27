@@ -3,11 +3,11 @@
   "comment": "本番：隙間標準・速度アップ",
   "pipeSpeed": 220.0,
   "pipes": [
-    { "spawnX": 600,  "gapCenterY": 320 },
-    { "spawnX": 1000, "gapCenterY": 430 },
-    { "spawnX": 1400, "gapCenterY": 250 },
-    { "spawnX": 1800, "gapCenterY": 390 },
-    { "spawnX": 2200, "gapCenterY": 310 },
-    { "spawnX": 2600, "gapCenterY": 450 }
+    { "spawnX": 600,  "gapTop": 229, "gapBottom": 411 },
+    { "spawnX": 1000, "gapTop": 339, "gapBottom": 521 },
+    { "spawnX": 1400, "gapTop": 159, "gapBottom": 341 },
+    { "spawnX": 1800, "gapTop": 299, "gapBottom": 481 },
+    { "spawnX": 2200, "gapTop": 219, "gapBottom": 401 },
+    { "spawnX": 2600, "gapTop": 359, "gapBottom": 541 }
   ]
 }

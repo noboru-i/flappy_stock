@@ -63,7 +63,8 @@ class FlappyWorld extends World
            _traveledX >= _pendingPipes.first.spawnX) {
       final data = _pendingPipes.removeAt(0);
       add(PipePair(
-        gapCenterY: data.gapCenterY,
+        gapTop: data.gapTop,
+        gapBottom: data.gapBottom,
         speed: speed,
       ));
     }

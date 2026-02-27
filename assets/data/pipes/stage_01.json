@@ -3,10 +3,10 @@
   "comment": "チュートリアル：隙間広め・ゆっくり",
   "pipeSpeed": 150.0,
   "pipes": [
-    { "spawnX": 600,  "gapCenterY": 350 },
-    { "spawnX": 1050, "gapCenterY": 300 },
-    { "spawnX": 1500, "gapCenterY": 400 },
-    { "spawnX": 1950, "gapCenterY": 280 },
-    { "spawnX": 2400, "gapCenterY": 370 }
+    { "spawnX": 600,  "gapTop": 259, "gapBottom": 441 },
+    { "spawnX": 1050, "gapTop": 209, "gapBottom": 391 },
+    { "spawnX": 1500, "gapTop": 309, "gapBottom": 491 },
+    { "spawnX": 1950, "gapTop": 189, "gapBottom": 371 },
+    { "spawnX": 2400, "gapTop": 279, "gapBottom": 461 }
   ]
 }

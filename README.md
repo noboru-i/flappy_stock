@@ -14,7 +14,7 @@ Flutter + Flame で作った Flappy Bird ライクなゲーム。株価チャー
 ## 実行
 
 ```bash
-flutter run -d chrome --web-renderer canvaskit
+flutter run -d chrome
 ```
 
 ## ゲームの遊び方

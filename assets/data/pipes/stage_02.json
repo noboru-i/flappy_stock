@@ -1,0 +1,13 @@
+{
+  "id": "stage_02",
+  "comment": "本番：隙間標準・速度アップ",
+  "pipeSpeed": 220.0,
+  "pipes": [
+    { "spawnX": 600,  "gapCenterY": 320 },
+    { "spawnX": 1000, "gapCenterY": 430 },
+    { "spawnX": 1400, "gapCenterY": 250 },
+    { "spawnX": 1800, "gapCenterY": 390 },
+    { "spawnX": 2200, "gapCenterY": 310 },
+    { "spawnX": 2600, "gapCenterY": 450 }
+  ]
+}

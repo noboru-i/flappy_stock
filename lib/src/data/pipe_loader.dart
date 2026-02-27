@@ -5,11 +5,19 @@ import '../config.dart';
 
 class PipeLoader {
   static Future<List<StageData>> load() async {
-    final raw = await rootBundle.loadString('assets/data/pipes.json');
-    final json = jsonDecode(raw) as Map<String, dynamic>;
-    final stages = (json['stages'] as List)
-        .map((s) => StageData.fromJson(s as Map<String, dynamic>))
-        .toList();
+    final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+    final keys = manifest
+        .listAssets()
+        .where((k) => k.startsWith('assets/data/pipes/') && k.endsWith('.json'))
+        .toList()
+      ..sort();
+
+    final stages = <StageData>[];
+    for (final key in keys) {
+      final raw = await rootBundle.loadString(key);
+      final json = jsonDecode(raw) as Map<String, dynamic>;
+      stages.add(StageData.fromJson(json));
+    }
 
     // バリデーション
     for (final stage in stages) {

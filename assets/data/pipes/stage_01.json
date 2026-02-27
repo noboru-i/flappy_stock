@@ -1,0 +1,12 @@
+{
+  "id": "stage_01",
+  "comment": "チュートリアル：隙間広め・ゆっくり",
+  "pipeSpeed": 150.0,
+  "pipes": [
+    { "spawnX": 600,  "gapCenterY": 350 },
+    { "spawnX": 1050, "gapCenterY": 300 },
+    { "spawnX": 1500, "gapCenterY": 400 },
+    { "spawnX": 1950, "gapCenterY": 280 },
+    { "spawnX": 2400, "gapCenterY": 370 }
+  ]
+}

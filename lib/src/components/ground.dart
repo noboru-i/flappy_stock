@@ -6,9 +6,15 @@ import '../flappy_stock.dart';
 import '../config.dart';
 
 // 衝突判定の対象として識別するためのラッパークラス
-class GroundTile extends RectangleComponent with RectangleHitbox {
+class GroundTile extends RectangleComponent {
   GroundTile({required super.position, required super.size})
     : super(paint: Paint()..color = const Color(0xffd7b25e));
+
+  @override
+  FutureOr<void> onLoad() async {
+    await super.onLoad();
+    add(RectangleHitbox());
+  }
 }
 
 class Ground extends PositionComponent

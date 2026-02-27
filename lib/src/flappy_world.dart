@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:flame/game.dart';
 import 'flappy_stock.dart';
 import 'config.dart';
 import 'data/pipe_data.dart';

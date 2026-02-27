@@ -17,7 +17,7 @@ class Bird extends CircleComponent
         paint: Paint()
           ..color = const Color(0xffFFD700)
           ..style = PaintingStyle.fill,
-        children: [CircleHitbox()],
+        children: [CircleHitbox(radius: 1)],
       );
 
   final Vector2 _velocity = Vector2.zero();

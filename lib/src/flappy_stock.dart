@@ -63,5 +63,5 @@ class FlappyStock extends FlameGame with HasCollisionDetection, KeyboardEvents {
   }
 
   @override
-  Color backgroundColor() => const Color(0xff87CEEB);
+  Color backgroundColor() => const Color(0xff1a1a2e);
 }

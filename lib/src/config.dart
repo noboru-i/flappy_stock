@@ -3,7 +3,7 @@ const gameHeight = 700.0;
 
 // 鳥
 const birdRadius   = gameWidth * 0.07;
-const gravity      = gameHeight * 2.5;
+const gravity      = gameHeight * 1.25;
 const flapImpulse  = -gameHeight * 0.65;
 
 // パイプ

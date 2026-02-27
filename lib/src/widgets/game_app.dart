@@ -20,7 +20,7 @@ class _GameAppState extends State<GameApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        backgroundColor: const Color(0xff87CEEB),
+        backgroundColor: const Color(0xff1a1a2e),
         body: SafeArea(
           child: Column(
             children: [

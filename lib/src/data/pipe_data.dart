@@ -1,47 +1,28 @@
-class BonusZone {
-  const BonusZone({required this.start, required this.end});
-
-  /// ボーナスゾーンの上端 y 座標（ゲーム座標）。
-  final double start;
-
-  /// ボーナスゾーンの下端 y 座標（ゲーム座標）。
-  final double end;
-
-  factory BonusZone.fromJson(Map<String, dynamic> json) => BonusZone(
-    start: (json['start'] as num).toDouble(),
-    end:   (json['end']   as num).toDouble(),
-  );
-}
-
 class PipeData {
   const PipeData({
     required this.spawnX,
     required this.gapTop,
     required this.gapBottom,
-    this.bonusZoneTop,
-    this.bonusZoneBottom,
+    this.bonusTop,
+    this.bonusBottom,
   });
 
   final double spawnX;
   final double gapTop;
   final double gapBottom;
 
-  /// ギャップ上端付近のボーナスゾーン（省略時はボーナスなし）。
-  final BonusZone? bonusZoneTop;
+  /// 上ボーナスゾーンの下端 y 座標。gapTop〜bonusTop の範囲がボーナス（省略時はボーナスなし）。
+  final double? bonusTop;
 
-  /// ギャップ下端付近のボーナスゾーン（省略時はボーナスなし）。
-  final BonusZone? bonusZoneBottom;
+  /// 下ボーナスゾーンの上端 y 座標。bonusBottom〜gapBottom の範囲がボーナス（省略時はボーナスなし）。
+  final double? bonusBottom;
 
   factory PipeData.fromJson(Map<String, dynamic> json) => PipeData(
-    spawnX:          (json['spawnX']    as num).toDouble(),
-    gapTop:          (json['gapTop']    as num).toDouble(),
-    gapBottom:       (json['gapBottom'] as num).toDouble(),
-    bonusZoneTop:    json['bonusZoneTop']    != null
-        ? BonusZone.fromJson(json['bonusZoneTop']    as Map<String, dynamic>)
-        : null,
-    bonusZoneBottom: json['bonusZoneBottom'] != null
-        ? BonusZone.fromJson(json['bonusZoneBottom'] as Map<String, dynamic>)
-        : null,
+    spawnX:      (json['spawnX']    as num).toDouble(),
+    gapTop:      (json['gapTop']    as num).toDouble(),
+    gapBottom:   (json['gapBottom'] as num).toDouble(),
+    bonusTop:    json['bonusTop']    != null ? (json['bonusTop']    as num).toDouble() : null,
+    bonusBottom: json['bonusBottom'] != null ? (json['bonusBottom'] as num).toDouble() : null,
   );
 }
 

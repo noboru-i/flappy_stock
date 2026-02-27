@@ -69,8 +69,8 @@ class FlappyWorld extends World
         gapBottom: data.gapBottom,
         speed: speed,
         getBirdY: () => _bird?.y ?? -1,
-        bonusZoneTop: data.bonusZoneTop,
-        bonusZoneBottom: data.bonusZoneBottom,
+        bonusTop: data.bonusTop,
+        bonusBottom: data.bonusBottom,
       ));
     }
   }

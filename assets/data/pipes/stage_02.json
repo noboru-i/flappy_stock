@@ -3,11 +3,11 @@
   "comment": "本番：隙間標準・速度アップ",
   "pipeSpeed": 220.0,
   "pipes": [
-    { "spawnX": 600,  "gapTop": 229, "gapBottom": 411, "bonusZoneTop": { "start": 229, "end": 254 }, "bonusZoneBottom": { "start": 386, "end": 411 } },
-    { "spawnX": 1000, "gapTop": 339, "gapBottom": 521, "bonusZoneTop": { "start": 339, "end": 364 }, "bonusZoneBottom": { "start": 496, "end": 521 } },
-    { "spawnX": 1400, "gapTop": 159, "gapBottom": 341, "bonusZoneTop": { "start": 159, "end": 184 }, "bonusZoneBottom": { "start": 316, "end": 341 } },
-    { "spawnX": 1800, "gapTop": 299, "gapBottom": 481, "bonusZoneTop": { "start": 299, "end": 324 }, "bonusZoneBottom": { "start": 456, "end": 481 } },
-    { "spawnX": 2200, "gapTop": 219, "gapBottom": 401, "bonusZoneTop": { "start": 219, "end": 244 }, "bonusZoneBottom": { "start": 376, "end": 401 } },
-    { "spawnX": 2600, "gapTop": 359, "gapBottom": 541, "bonusZoneTop": { "start": 359, "end": 384 }, "bonusZoneBottom": { "start": 516, "end": 541 } }
+    { "spawnX": 600,  "gapTop": 229, "gapBottom": 411, "bonusTop": 254, "bonusBottom": 386 },
+    { "spawnX": 1000, "gapTop": 339, "gapBottom": 521, "bonusTop": 364, "bonusBottom": 496 },
+    { "spawnX": 1400, "gapTop": 159, "gapBottom": 341, "bonusTop": 184, "bonusBottom": 316 },
+    { "spawnX": 1800, "gapTop": 299, "gapBottom": 481, "bonusTop": 324, "bonusBottom": 456 },
+    { "spawnX": 2200, "gapTop": 219, "gapBottom": 401, "bonusTop": 244, "bonusBottom": 376 },
+    { "spawnX": 2600, "gapTop": 359, "gapBottom": 541, "bonusTop": 384, "bonusBottom": 516 }
   ]
 }

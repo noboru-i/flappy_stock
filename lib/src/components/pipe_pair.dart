@@ -4,7 +4,6 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../flappy_stock.dart';
 import '../config.dart';
-import '../data/pipe_data.dart';
 
 class PipePair extends PositionComponent
     with HasGameReference<FlappyStock> {
@@ -14,8 +13,8 @@ class PipePair extends PositionComponent
     required this.gapBottom,
     required this.speed,
     required this.getBirdY,
-    this.bonusZoneTop,
-    this.bonusZoneBottom,
+    this.bonusTop,
+    this.bonusBottom,
   }) : super(
     position: Vector2(gameWidth + pipeWidth, 0),
     anchor: Anchor.topLeft,
@@ -28,8 +27,8 @@ class PipePair extends PositionComponent
   /// ボーナスゾーン判定のため、現在の鳥の y 座標を返すコールバック。
   final double Function() getBirdY;
 
-  final BonusZone? bonusZoneTop;
-  final BonusZone? bonusZoneBottom;
+  final double? bonusTop;
+  final double? bonusBottom;
 
   bool _scored = false;
 
@@ -71,16 +70,8 @@ class PipePair extends PositionComponent
   }
 
   bool _isInBonusZone(double birdY) {
-    if (bonusZoneTop != null &&
-        birdY >= bonusZoneTop!.start &&
-        birdY <= bonusZoneTop!.end) {
-      return true;
-    }
-    if (bonusZoneBottom != null &&
-        birdY >= bonusZoneBottom!.start &&
-        birdY <= bonusZoneBottom!.end) {
-      return true;
-    }
+    if (bonusTop != null && birdY >= gapTop && birdY <= bonusTop!) return true;
+    if (bonusBottom != null && birdY >= bonusBottom! && birdY <= gapBottom) return true;
     return false;
   }
 }

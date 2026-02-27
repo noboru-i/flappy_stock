@@ -11,10 +11,18 @@ Flutter + Flame で作った Flappy Bird ライクなゲーム。株価チャー
 | レンダラー | CanvasKit |
 | 言語 | Dart |
 
-## 実行
+## コマンド
+
+| コマンド | 内容 |
+|---|---|
+| `make run` | Chrome で開発サーバーを起動 |
+| `make build` | Web 向けリリースビルド |
+| `make deploy` | ビルド → Firebase Hosting にデプロイ |
 
 ```bash
-flutter run -d chrome
+make run     # 開発
+make build   # ビルドのみ
+make deploy  # ビルド + デプロイ
 ```
 
 ## ゲームの遊び方

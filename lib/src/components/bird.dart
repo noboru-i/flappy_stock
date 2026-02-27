@@ -21,13 +21,30 @@ class Bird extends CircleComponent
       );
 
   final Vector2 _velocity = Vector2.zero();
+  bool _isFlapHeld = false;
+  double _flapHoldTime = 0;
 
-  void flap() => _velocity.y = flapImpulse;
+  void flapStart() {
+    _isFlapHeld = true;
+    _flapHoldTime = 0;
+  }
+
+  void flapEnd() {
+    _isFlapHeld = false;
+  }
 
   @override
   void update(double dt) {
     super.update(dt);
     if (game.playState != PlayState.playing) return;
+
+    if (_isFlapHeld) {
+      _flapHoldTime = (_flapHoldTime + dt).clamp(0.0, maxFlapHoldTime);
+      final t = _flapHoldTime / maxFlapHoldTime;
+      // 押し時間の二乗に比例して上昇加速度が増大
+      final lift = flapLiftBase + flapLiftExtra * t * t;
+      _velocity.y -= lift * dt;
+    }
 
     _velocity.y += gravity * dt;
     position += _velocity * dt;

@@ -76,7 +76,23 @@ class FlappyWorld extends World
     if (game.playState != PlayState.playing) {
       startGame();
     } else {
-      children.query<Bird>().firstOrNull?.flap();
+      children.query<Bird>().firstOrNull?.flapStart();
+    }
+  }
+
+  @override
+  void onTapUp(TapUpEvent event) {
+    super.onTapUp(event);
+    if (game.playState == PlayState.playing) {
+      children.query<Bird>().firstOrNull?.flapEnd();
+    }
+  }
+
+  @override
+  void onTapCancel(TapCancelEvent event) {
+    super.onTapCancel(event);
+    if (game.playState == PlayState.playing) {
+      children.query<Bird>().firstOrNull?.flapEnd();
     }
   }
 }

@@ -49,15 +49,21 @@ class FlappyStock extends FlameGame with HasCollisionDetection, KeyboardEvents {
     KeyEvent event,
     Set<LogicalKeyboardKey> keysPressed,
   ) {
-    if (event is KeyDownEvent &&
-        event.logicalKey == LogicalKeyboardKey.space) {
+    if (event.logicalKey == LogicalKeyboardKey.space) {
       final flappyWorld = world as FlappyWorld;
-      if (playState != PlayState.playing) {
-        flappyWorld.startGame();
-      } else {
-        flappyWorld.children.query<Bird>().firstOrNull?.flap();
+      if (event is KeyDownEvent) {
+        if (playState != PlayState.playing) {
+          flappyWorld.startGame();
+        } else {
+          flappyWorld.children.query<Bird>().firstOrNull?.flapStart();
+        }
+        return KeyEventResult.handled;
+      } else if (event is KeyUpEvent) {
+        if (playState == PlayState.playing) {
+          flappyWorld.children.query<Bird>().firstOrNull?.flapEnd();
+        }
+        return KeyEventResult.handled;
       }
-      return KeyEventResult.handled;
     }
     return KeyEventResult.ignored;
   }

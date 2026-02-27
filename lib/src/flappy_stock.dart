@@ -8,7 +8,7 @@ import 'flappy_world.dart';
 import 'components/bird.dart';
 import 'config.dart';
 
-enum PlayState { welcome, playing, gameOver }
+enum PlayState { welcome, playing, dying, gameOver }
 
 class FlappyStock extends FlameGame with HasCollisionDetection, KeyboardEvents {
   FlappyStock()
@@ -32,6 +32,7 @@ class FlappyStock extends FlameGame with HasCollisionDetection, KeyboardEvents {
       case PlayState.gameOver:
         overlays.add(state.name);
       case PlayState.playing:
+      case PlayState.dying:
         overlays.remove(PlayState.welcome.name);
         overlays.remove(PlayState.gameOver.name);
     }
@@ -52,10 +53,10 @@ class FlappyStock extends FlameGame with HasCollisionDetection, KeyboardEvents {
     if (event.logicalKey == LogicalKeyboardKey.space) {
       final flappyWorld = world as FlappyWorld;
       if (event is KeyDownEvent) {
-        if (playState != PlayState.playing) {
-          flappyWorld.startGame();
-        } else {
+        if (playState == PlayState.playing) {
           flappyWorld.children.query<Bird>().firstOrNull?.flapStart();
+        } else if (playState != PlayState.dying) {
+          flappyWorld.startGame();
         }
         return KeyEventResult.handled;
       } else if (event is KeyUpEvent) {

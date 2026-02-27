@@ -92,6 +92,7 @@ class PipePair extends PositionComponent
   @override
   void update(double dt) {
     super.update(dt);
+    if (game.playState != PlayState.playing) return;
     position.x -= speed * dt;
 
     // スコア加算：鳥の位置（gameWidth * 0.25）をパイプ右端が通過した瞬間

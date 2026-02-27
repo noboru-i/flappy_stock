@@ -79,10 +79,10 @@ class FlappyWorld extends World
   @override
   void onTapDown(TapDownEvent event) {
     super.onTapDown(event);
-    if (game.playState != PlayState.playing) {
-      startGame();
-    } else {
+    if (game.playState == PlayState.playing) {
       children.query<Bird>().firstOrNull?.flapStart();
+    } else if (game.playState != PlayState.dying) {
+      startGame();
     }
   }
 

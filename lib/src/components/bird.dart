@@ -1,6 +1,5 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
-import 'package:flame/effects.dart';
 import 'package:flutter/material.dart';
 import '../flappy_stock.dart';
 import '../config.dart';
@@ -73,10 +72,14 @@ class Bird extends CircleComponent
     super.onCollisionStart(intersectionPoints, other);
     // PipePair の子 RectangleComponent と衝突したとき
     if (other.parent is PipePair) {
-      add(RemoveEffect(
-        delay: 0.3,
-        onComplete: () => game.playState = PlayState.gameOver,
-      ));
+      game.playState = PlayState.dying;
+      add(
+        TimerComponent(
+          period: 0.3,
+          removeOnFinish: true,
+          onTick: () => game.playState = PlayState.gameOver,
+        ),
+      );
     }
   }
 }

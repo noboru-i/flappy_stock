@@ -1,4 +1,4 @@
-# Flappy Bird — Flutter/Flame 実装仕様書
+# Flappy Stock — Flutter/Flame 実装仕様書
 
 > Claude Code への引き継ぎ用ドキュメント  
 > 参照元: Google Codelabs (Brick Breaker), https://docs.flame-engine.org/latest/
@@ -29,7 +29,7 @@
 ## 1. ディレクトリ構成
 
 ```
-flappy_bird/
+flappy_stock/
 ├── pubspec.yaml
 ├── assets/
 │   ├── data/
@@ -38,7 +38,7 @@ flappy_bird/
 └── lib/
     ├── main.dart
     └── src/
-        ├── flappy_bird.dart     # FlameGame サブクラス
+        ├── flappy_stock.dart     # FlameGame サブクラス
         ├── flappy_world.dart    # World サブクラス（タップ受付・パイプ管理）
         ├── config.dart          # 全定数
         ├── data/
@@ -61,8 +61,8 @@ flappy_bird/
 ## 2. pubspec.yaml
 
 ```yaml
-name: flappy_bird
-description: "Flappy Bird built with Flutter + Flame"
+name: flappy_stock
+description: "Flappy Stock built with Flutter + Flame"
 publish_to: "none"
 version: 0.1.0
 
@@ -235,7 +235,7 @@ class PipeLoader {
 
 ---
 
-## 7. lib/src/flappy_bird.dart（FlameGame）
+## 7. lib/src/flappy_stock.dart（FlameGame）
 
 ```dart
 import 'dart:async';
@@ -246,8 +246,8 @@ import 'config.dart';
 
 enum PlayState { welcome, playing, gameOver }
 
-class FlappyBird extends FlameGame {
-  FlappyBird()
+class FlappyStock extends FlameGame {
+  FlappyStock()
     : super(
         camera: CameraComponent.withFixedResolution(
           width: gameWidth,
@@ -295,14 +295,14 @@ import 'dart:math' as math;
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
-import 'flappy_bird.dart';
+import 'flappy_stock.dart';
 import 'config.dart';
 import 'data/pipe_data.dart';
 import 'data/pipe_loader.dart';
 import 'components/components.dart';
 
 class FlappyWorld extends World
-    with TapCallbacks, HasGameReference<FlappyBird> {
+    with TapCallbacks, HasGameReference<FlappyStock> {
 
   List<StageData> _stages = [];
   StageData? _currentStage;
@@ -386,13 +386,13 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flutter/material.dart';
-import '../flappy_bird.dart';
+import '../flappy_stock.dart';
 import '../config.dart';
 import 'pipe_pair.dart';
 import 'ground.dart';
 
 class Bird extends CircleComponent
-    with CollisionCallbacks, HasGameReference<FlappyBird> {
+    with CollisionCallbacks, HasGameReference<FlappyStock> {
 
   Bird({required super.position})
     : super(
@@ -451,11 +451,11 @@ import 'dart:async';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import '../flappy_bird.dart';
+import '../flappy_stock.dart';
 import '../config.dart';
 
 class PipePair extends PositionComponent
-    with HasGameReference<FlappyBird> {
+    with HasGameReference<FlappyStock> {
 
   PipePair({
     required this.gapCenterY,
@@ -517,7 +517,7 @@ import 'dart:async';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import '../flappy_bird.dart';
+import '../flappy_stock.dart';
 import '../config.dart';
 
 // 衝突判定の対象として識別するためのラッパークラス
@@ -527,7 +527,7 @@ class GroundTile extends RectangleComponent with RectangleHitbox {
 }
 
 class Ground extends PositionComponent
-    with HasGameReference<FlappyBird> {
+    with HasGameReference<FlappyStock> {
 
   @override
   FutureOr<void> onLoad() async {
@@ -577,7 +577,7 @@ class Background extends RectangleComponent {
 
   // 画像アセット使用時は ParallaxComponent に差し替え:
   //
-  // class Background extends ParallaxComponent<FlappyBird> {
+  // class Background extends ParallaxComponent<FlappyStock> {
   //   @override
   //   FutureOr<void> onLoad() async {
   //     parallax = await game.loadParallax(
@@ -691,7 +691,7 @@ class OverlayScreen extends StatelessWidget {
 ```dart
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
-import '../flappy_bird.dart';
+import '../flappy_stock.dart';
 import 'score_card.dart';
 import 'overlay_screen.dart';
 
@@ -704,7 +704,7 @@ class GameApp extends StatefulWidget {
 
 class _GameAppState extends State<GameApp> {
   // build の外で生成（毎フレーム再生成を防ぐ）
-  late final FlappyBird _game = FlappyBird();
+  late final FlappyStock _game = FlappyStock();
 
   @override
   Widget build(BuildContext context) {
@@ -727,7 +727,7 @@ class _GameAppState extends State<GameApp> {
                         overlayBuilderMap: {
                           PlayState.welcome.name: (_, __) =>
                               const OverlayScreen(
-                                title: 'FLAPPY BIRD',
+                                title: 'FLAPPY STOCK',
                                 subtitle: 'TAP TO START',
                               ),
                           PlayState.gameOver.name: (_, __) =>
@@ -768,7 +768,7 @@ void main() {
 ## 18. コンポーネント依存関係図
 
 ```
-FlameGame (FlappyBird)
+FlameGame (FlappyStock)
 ├── score: ValueNotifier<int>          ← ScoreCard が購読
 ├── playState: PlayState               ← overlays.add/remove を制御
 └── World (FlappyWorld)
@@ -834,16 +834,16 @@ PipePair.update(dt)
 
 ## 21. 実装ステップ（推奨順）
 
-1. `flutter create flappy_bird --empty` でプロジェクト作成
+1. `flutter create flappy_stock --empty` でプロジェクト作成
 2. `pubspec.yaml` を本仕様書の通りに書き換え
 3. `assets/data/pipes.json` を配置
 4. `config.dart` 作成
 5. `pipe_data.dart` / `pipe_loader.dart` 作成
-6. `FlappyBird`（FlameGame）骨格作成・黒画面確認
+6. `FlappyStock`（FlameGame）骨格作成・黒画面確認
 7. `FlappyWorld`（World + TapCallbacks）作成
 8. `Background` / `Ground` 追加・表示確認
 9. `Bird` 追加・重力・フラップ動作確認
-10. `HasCollisionDetection` を FlappyBird に追加（`with HasCollisionDetection`）
+10. `HasCollisionDetection` を FlappyStock に追加（`with HasCollisionDetection`）
 11. `PipePair` 追加・JSON ロード・出現確認
 12. 衝突 → gameOver 遷移確認
 13. スコア加算確認
@@ -858,7 +858,7 @@ PipePair.update(dt)
 |---|---|
 | ホットリロード | Flame は Flutter のホットリロード非対応。変更後は `r` ではなく `R`（フルリスタート）を使う |
 | コンポーネント削除タイミング | `removeFromParent()` はキューイング処理。削除直後の `children.query<>()` には削除前の状態が残る |
-| `HasCollisionDetection` | `FlappyBird extends FlameGame with HasCollisionDetection` に追加を忘れずに |
+| `HasCollisionDetection` | `FlappyStock extends FlameGame with HasCollisionDetection` に追加を忘れずに |
 | Web サウンド | Autoplay Policy により初回ユーザー操作前に音を鳴らせない。`flame_audio` は初回タップ後に初期化すること |
 | `gapCenterY` 範囲外 | debug ビルドでは `assert` が機能する。JSON 編集時は有効範囲を確認すること |
 | Vector2 精度 | Flame 1.20+ で Vector2 が 32bit 化済み。高精度計算が必要な場合は `double` 変数で別途保持すること |

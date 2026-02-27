@@ -4,6 +4,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../flappy_stock.dart';
 import '../config.dart';
+import '../data/pipe_data.dart';
 
 class PipePair extends PositionComponent
     with HasGameReference<FlappyStock> {
@@ -12,6 +13,9 @@ class PipePair extends PositionComponent
     required this.gapTop,
     required this.gapBottom,
     required this.speed,
+    required this.getBirdY,
+    this.bonusZoneTop,
+    this.bonusZoneBottom,
   }) : super(
     position: Vector2(gameWidth + pipeWidth, 0),
     anchor: Anchor.topLeft,
@@ -20,6 +24,13 @@ class PipePair extends PositionComponent
   final double gapTop;
   final double gapBottom;
   final double speed;
+
+  /// ボーナスゾーン判定のため、現在の鳥の y 座標を返すコールバック。
+  final double Function() getBirdY;
+
+  final BonusZone? bonusZoneTop;
+  final BonusZone? bonusZoneBottom;
+
   bool _scored = false;
 
   static const _pipeColor = Color(0xff5aad3e);
@@ -51,10 +62,25 @@ class PipePair extends PositionComponent
     // スコア加算：鳥の位置（gameWidth * 0.25）をパイプ右端が通過した瞬間
     if (!_scored && position.x + pipeWidth < gameWidth * 0.25) {
       _scored = true;
-      game.score.value++;
+      final birdY = getBirdY();
+      game.score.value += _isInBonusZone(birdY) ? 2 : 1;
     }
 
     // 画面左端を超えたら削除
     if (position.x < -pipeWidth * 2) removeFromParent();
+  }
+
+  bool _isInBonusZone(double birdY) {
+    if (bonusZoneTop != null &&
+        birdY >= bonusZoneTop!.start &&
+        birdY <= bonusZoneTop!.end) {
+      return true;
+    }
+    if (bonusZoneBottom != null &&
+        birdY >= bonusZoneBottom!.start &&
+        birdY <= bonusZoneBottom!.end) {
+      return true;
+    }
+    return false;
   }
 }

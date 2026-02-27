@@ -19,6 +19,9 @@ class FlappyWorld extends World
   // 鳥の仮想累積移動距離
   double _traveledX = 0;
 
+  // 現在の鳥への参照（ボーナスゾーン判定に使用）
+  Bird? _bird;
+
   @override
   FutureOr<void> onLoad() async {
     _stages = await PipeLoader.load();
@@ -44,9 +47,8 @@ class FlappyWorld extends World
 
     game.playState = PlayState.playing;
 
-    add(Bird(
-      position: Vector2(gameWidth * 0.25, gameHeight * 0.45),
-    ));
+    _bird = Bird(position: Vector2(gameWidth * 0.25, gameHeight * 0.45));
+    add(_bird!);
   }
 
   // ─── ゲームループ ──────────────────────────────────────────────
@@ -66,6 +68,9 @@ class FlappyWorld extends World
         gapTop: data.gapTop,
         gapBottom: data.gapBottom,
         speed: speed,
+        getBirdY: () => _bird?.y ?? -1,
+        bonusZoneTop: data.bonusZoneTop,
+        bonusZoneBottom: data.bonusZoneBottom,
       ));
     }
   }

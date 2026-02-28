@@ -1,5 +1,6 @@
 {
   "id": "stage_01",
+  "name": "Stage 1: Tutorial",
   "comment": "チュートリアル：ローソク足（JSON座標系：画面下端=0、上限=616）",
   "pipeSpeed": 150.0,
   "candles": [

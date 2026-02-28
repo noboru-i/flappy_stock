@@ -11,6 +11,7 @@ class FlappyWorld extends World
     with TapCallbacks, HasGameReference<FlappyStock> {
 
   List<StageData> _stages = [];
+  List<StageData> get stages => _stages;
   StageData? _currentStage;
 
   // 未出現ローソク足のキュー（spawnX 昇順）
@@ -34,7 +35,7 @@ class FlappyWorld extends World
   }
 
   // ─── ゲーム開始 ────────────────────────────────────────────────
-  void startGame() {
+  void startGame(StageData stage) {
     removeAll(children.query<Bird>());
     removeAll(children.query<Candle>());
 
@@ -42,8 +43,7 @@ class FlappyWorld extends World
     _traveledX = 0;
     _scoredCandles = 0;
 
-    // ステージ選択（現在は stage_01 固定。後で拡張可）
-    _currentStage = _stages.first;
+    _currentStage = stage;
     _totalCandles = _currentStage!.candles.length;
 
     // キューを初期化
@@ -95,8 +95,10 @@ class FlappyWorld extends World
     super.onTapDown(event);
     if (game.playState == PlayState.playing) {
       children.query<Bird>().firstOrNull?.flapStart();
-    } else {
-      startGame();
+    } else if (game.playState == PlayState.welcome ||
+               game.playState == PlayState.gameOver ||
+               game.playState == PlayState.clear) {
+      game.playState = PlayState.stageSelect;
     }
   }
 

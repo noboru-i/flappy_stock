@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../flappy_stock.dart';
 import 'score_card.dart';
 import 'overlay_screen.dart';
+import 'stage_select_screen.dart';
 
 class GameApp extends StatefulWidget {
   const GameApp({super.key});
@@ -39,6 +40,8 @@ class _GameAppState extends State<GameApp> {
                                 title: 'FLAPPY STOCK',
                                 subtitle: 'TAP TO START',
                               ),
+                          PlayState.stageSelect.name: (_, game) =>
+                              StageSelectScreen(game: game as FlappyStock),
                           PlayState.gameOver.name: (_, _) =>
                               const OverlayScreen(
                                 title: 'GAME OVER',

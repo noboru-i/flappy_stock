@@ -33,16 +33,19 @@ class CandleData {
 class StageData {
   const StageData({
     required this.id,
+    required this.name,
     required this.pipeSpeed,
     required this.candles,
   });
 
   final String id;
+  final String name;
   final double pipeSpeed;
   final List<CandleData> candles;
 
   factory StageData.fromJson(Map<String, dynamic> json) => StageData(
     id:        json['id'] as String,
+    name:      (json['name'] as String?) ?? json['id'] as String,
     pipeSpeed: (json['pipeSpeed'] as num).toDouble(),
     candles: (json['candles'] as List)
         .map((c) => CandleData.fromJson(c as Map<String, dynamic>))

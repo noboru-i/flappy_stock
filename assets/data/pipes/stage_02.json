@@ -1,5 +1,6 @@
 {
   "id": "stage_02",
+  "name": "Stage 2: Speed Up",
   "comment": "本番：速度アップ（JSON座標系：画面下端=0、上限=616）",
   "pipeSpeed": 220.0,
   "candles": [

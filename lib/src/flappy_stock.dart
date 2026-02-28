@@ -7,8 +7,9 @@ import 'package:flutter/services.dart';
 import 'flappy_world.dart';
 import 'components/bird.dart';
 import 'config.dart';
+import 'data/pipe_data.dart';
 
-enum PlayState { welcome, playing, gameOver, clear }
+enum PlayState { welcome, stageSelect, playing, gameOver, clear }
 
 class FlappyStock extends FlameGame with HasCollisionDetection, KeyboardEvents {
   FlappyStock()
@@ -23,17 +24,21 @@ class FlappyStock extends FlameGame with HasCollisionDetection, KeyboardEvents {
   // Flutter 状態管理との橋渡し
   final ValueNotifier<int> score = ValueNotifier(0);
 
+  List<StageData> get stages => (world as FlappyWorld).stages;
+
   late PlayState _playState;
   PlayState get playState => _playState;
   set playState(PlayState state) {
     _playState = state;
     switch (state) {
       case PlayState.welcome:
+      case PlayState.stageSelect:
       case PlayState.gameOver:
       case PlayState.clear:
         overlays.add(state.name);
       case PlayState.playing:
         overlays.remove(PlayState.welcome.name);
+        overlays.remove(PlayState.stageSelect.name);
         overlays.remove(PlayState.gameOver.name);
         overlays.remove(PlayState.clear.name);
     }
@@ -56,8 +61,10 @@ class FlappyStock extends FlameGame with HasCollisionDetection, KeyboardEvents {
       if (event is KeyDownEvent) {
         if (playState == PlayState.playing) {
           flappyWorld.children.query<Bird>().firstOrNull?.flapStart();
-        } else {
-          flappyWorld.startGame();
+        } else if (playState == PlayState.welcome ||
+                   playState == PlayState.gameOver ||
+                   playState == PlayState.clear) {
+          playState = PlayState.stageSelect;
         }
         return KeyEventResult.handled;
       } else if (event is KeyUpEvent) {

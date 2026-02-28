@@ -45,7 +45,7 @@ app.*.map.json
 /android/app/release
 
 # Claude Code local settings
-.claude/
+.claude/worktrees/
 settings.local.json
 
 # Firebase

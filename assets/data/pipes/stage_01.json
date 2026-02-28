@@ -1,12 +1,12 @@
 {
   "id": "stage_01",
-  "comment": "チュートリアル：隙間広め・ゆっくり",
+  "comment": "チュートリアル：ローソク足（JSON座標系：画面下端=0、上限=616）",
   "pipeSpeed": 150.0,
-  "pipes": [
-    { "spawnX": 600,  "gapTop": 259, "gapBottom": 441, "bonusTop": 289, "bonusBottom": 411 },
-    { "spawnX": 1050, "gapTop": 209, "gapBottom": 391, "bonusTop": 239, "bonusBottom": 361 },
-    { "spawnX": 1500, "gapTop": 309, "gapBottom": 491, "bonusTop": 339, "bonusBottom": 461 },
-    { "spawnX": 1950, "gapTop": 189, "gapBottom": 371, "bonusTop": 219, "bonusBottom": 341 },
-    { "spawnX": 2400, "gapTop": 279, "gapBottom": 461, "bonusTop": 309, "bonusBottom": 431 }
+  "candles": [
+    { "spawnX":  600, "high": 490, "low": 150, "open": 240, "close": 410 },
+    { "spawnX": 1050, "high": 510, "low": 130, "open": 380, "close": 200 },
+    { "spawnX": 1500, "high": 530, "low": 110, "open": 200, "close": 390 },
+    { "spawnX": 1950, "high": 480, "low": 160, "open": 330, "close": 170 },
+    { "spawnX": 2400, "high": 550, "low": 100, "open": 190, "close": 450 }
   ]
 }

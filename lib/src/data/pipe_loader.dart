@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 import 'package:flutter/services.dart';
 import 'pipe_data.dart';
 import '../config.dart';
@@ -20,13 +21,19 @@ class PipeLoader {
     }
 
     // バリデーション
+    final maxY = gameHeight - groundHeight;
     for (final stage in stages) {
-      for (final pipe in stage.pipes) {
+      for (final candle in stage.candles) {
+        final minBody = math.min(candle.open, candle.close);
+        final maxBody = math.max(candle.open, candle.close);
         assert(
-          pipe.gapTop >= 0 &&
-          pipe.gapBottom > pipe.gapTop &&
-          pipe.gapBottom <= gameHeight - groundHeight,
-          '[${stage.id}] gapTop/gapBottom out of range: ${pipe.gapTop} / ${pipe.gapBottom}',
+          candle.low >= 0 &&
+          candle.high <= maxY &&
+          candle.low <= minBody &&
+          maxBody <= candle.high,
+          '[${stage.id}] candle data out of range: '
+          'high=${candle.high} low=${candle.low} '
+          'open=${candle.open} close=${candle.close}',
         );
       }
     }

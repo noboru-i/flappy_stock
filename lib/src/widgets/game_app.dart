@@ -44,6 +44,14 @@ class _GameAppState extends State<GameApp> {
                                 title: 'GAME OVER',
                                 subtitle: 'TAP TO RETRY',
                               ),
+                          PlayState.clear.name: (_, game) {
+                            final flappyStock = game as FlappyStock;
+                            return OverlayScreen(
+                              title: 'STAGE CLEAR!',
+                              subtitle: 'TAP TO RETRY',
+                              score: flappyStock.score.value,
+                            );
+                          },
                         },
                       ),
                     ),

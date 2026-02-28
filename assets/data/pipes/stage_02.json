@@ -1,13 +1,13 @@
 {
   "id": "stage_02",
-  "comment": "本番：隙間標準・速度アップ",
+  "comment": "本番：速度アップ（JSON座標系：画面下端=0、上限=616）",
   "pipeSpeed": 220.0,
-  "pipes": [
-    { "spawnX": 600,  "gapTop": 229, "gapBottom": 411, "bonusTop": 254, "bonusBottom": 386 },
-    { "spawnX": 1000, "gapTop": 339, "gapBottom": 521, "bonusTop": 364, "bonusBottom": 496 },
-    { "spawnX": 1400, "gapTop": 159, "gapBottom": 341, "bonusTop": 184, "bonusBottom": 316 },
-    { "spawnX": 1800, "gapTop": 299, "gapBottom": 481, "bonusTop": 324, "bonusBottom": 456 },
-    { "spawnX": 2200, "gapTop": 219, "gapBottom": 401, "bonusTop": 244, "bonusBottom": 376 },
-    { "spawnX": 2600, "gapTop": 359, "gapBottom": 541, "bonusTop": 384, "bonusBottom": 516 }
+  "candles": [
+    { "spawnX":  600, "high": 500, "low": 140, "open": 250, "close": 390 },
+    { "spawnX": 1000, "high": 520, "low": 100, "open": 320, "close": 180 },
+    { "spawnX": 1400, "high": 540, "low": 120, "open": 160, "close": 340 },
+    { "spawnX": 1800, "high": 500, "low": 150, "open": 380, "close": 210 },
+    { "spawnX": 2200, "high": 510, "low": 130, "open": 200, "close": 370 },
+    { "spawnX": 2600, "high": 530, "low":  90, "open": 430, "close": 270 }
   ]
 }

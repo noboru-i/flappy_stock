@@ -13,13 +13,17 @@ class FlappyWorld extends World
   List<StageData> _stages = [];
   StageData? _currentStage;
 
-  // 未出現パイプのキュー（spawnX 昇順）
-  final List<PipeData> _pendingPipes = [];
+  // 未出現ローソク足のキュー（spawnX 昇順）
+  final List<CandleData> _pendingCandles = [];
 
   // 鳥の仮想累積移動距離
   double _traveledX = 0;
 
-  // 現在の鳥への参照（ボーナスゾーン判定に使用）
+  // クリア判定用カウンタ
+  int _totalCandles = 0;
+  int _scoredCandles = 0;
+
+  // 現在の鳥への参照（スコア判定に使用）
   Bird? _bird;
 
   @override
@@ -32,18 +36,20 @@ class FlappyWorld extends World
   // ─── ゲーム開始 ────────────────────────────────────────────────
   void startGame() {
     removeAll(children.query<Bird>());
-    removeAll(children.query<PipePair>());
+    removeAll(children.query<Candle>());
 
     game.score.value = 0;
     _traveledX = 0;
+    _scoredCandles = 0;
 
     // ステージ選択（現在は stage_01 固定。後で拡張可）
     _currentStage = _stages.first;
+    _totalCandles = _currentStage!.candles.length;
 
     // キューを初期化
-    _pendingPipes
+    _pendingCandles
       ..clear()
-      ..addAll(_currentStage!.pipes);
+      ..addAll(_currentStage!.candles);
 
     game.playState = PlayState.playing;
 
@@ -60,18 +66,26 @@ class FlappyWorld extends World
     final speed = _currentStage?.pipeSpeed ?? pipeSpeed;
     _traveledX += speed * dt;
 
-    // 出現タイミングに達したパイプを追加
-    while (_pendingPipes.isNotEmpty &&
-           _traveledX >= _pendingPipes.first.spawnX) {
-      final data = _pendingPipes.removeAt(0);
-      add(PipePair(
-        gapTop: data.gapTop,
-        gapBottom: data.gapBottom,
-        speed: speed,
-        getBirdY: () => _bird?.y ?? -1,
-        bonusTop: data.bonusTop,
-        bonusBottom: data.bonusBottom,
+    // 出現タイミングに達したローソク足を追加
+    while (_pendingCandles.isNotEmpty &&
+           _traveledX >= _pendingCandles.first.spawnX) {
+      final data = _pendingCandles.removeAt(0);
+      add(Candle(
+        high:      data.high,
+        low:       data.low,
+        open:      data.open,
+        close:     data.close,
+        speed:     speed,
+        getBirdY:  () => _bird?.y ?? (gameHeight - groundHeight) / 2,
+        onScored:  _onCandleScored,
       ));
+    }
+  }
+
+  void _onCandleScored() {
+    _scoredCandles++;
+    if (_scoredCandles >= _totalCandles) {
+      game.playState = PlayState.clear;
     }
   }
 
@@ -81,7 +95,7 @@ class FlappyWorld extends World
     super.onTapDown(event);
     if (game.playState == PlayState.playing) {
       children.query<Bird>().firstOrNull?.flapStart();
-    } else if (game.playState != PlayState.dying) {
+    } else {
       startGame();
     }
   }

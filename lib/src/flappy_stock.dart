@@ -25,6 +25,7 @@ class FlappyStock extends FlameGame with HasCollisionDetection, KeyboardEvents {
   final ValueNotifier<int> score = ValueNotifier(0);
 
   List<StageData> get stages => (world as FlappyWorld).stages;
+  double get pipeScrollOffset => (world as FlappyWorld).traveledX;
 
   late PlayState _playState;
   PlayState get playState => _playState;
@@ -78,5 +79,5 @@ class FlappyStock extends FlameGame with HasCollisionDetection, KeyboardEvents {
   }
 
   @override
-  Color backgroundColor() => const Color(0xff1a1a2e);
+  Color backgroundColor() => const Color(0xff131722);
 }

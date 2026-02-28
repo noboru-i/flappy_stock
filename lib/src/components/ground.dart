@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -8,32 +7,17 @@ import '../config.dart';
 
 // 衝突判定の対象として識別するためのラッパークラス
 class GroundTile extends RectangleComponent {
-  final List<double> _linePositions;
-
   GroundTile({required super.position, required super.size})
-    : _linePositions = _generateLinePositions(),
-      super(paint: Paint()..color = const Color(0xffd7b25e));
-
-  static List<double> _generateLinePositions() {
-    final random = Random();
-    final positions = <double>[];
-    var x = random.nextDouble() * 30;
-    while (x < gameWidth) {
-      positions.add(x);
-      x += 15 + random.nextDouble() * 50;
-    }
-    return positions;
-  }
+    : super(paint: Paint()..color = const Color(0xFF0F1020));
 
   @override
   void render(Canvas canvas) {
     super.render(canvas);
+    // X軸ライン（チャートの軸）
     final linePaint = Paint()
-      ..color = const Color(0xffb89040)
-      ..strokeWidth = 2;
-    for (final x in _linePositions) {
-      canvas.drawLine(Offset(x, 4), Offset(x, size.y * 0.6), linePaint);
-    }
+      ..color = const Color(0xFF252540)
+      ..strokeWidth = 1.0;
+    canvas.drawLine(Offset(0, 0), Offset(size.x, 0), linePaint);
   }
 
   @override

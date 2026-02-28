@@ -19,6 +19,7 @@ class FlappyWorld extends World
 
   // 鳥の仮想累積移動距離
   double _traveledX = 0;
+  double get traveledX => _traveledX;
 
   // クリア判定用カウンタ
   int _totalCandles = 0;

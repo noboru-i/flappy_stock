@@ -7,7 +7,7 @@ class Background extends RectangleComponent {
   Background()
     : super(
         position: Vector2.zero(),
-        size: Vector2(gameWidth, gameHeight),
+        size: Vector2(gameWidth, stageHeight + groundHeight),
         paint: Paint()..color = const Color(0xff87CEEB),
       );
 

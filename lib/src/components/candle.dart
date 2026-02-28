@@ -15,7 +15,7 @@ class Candle extends PositionComponent with HasGameReference<FlappyStock> {
     required this.onScored,
   }) : super(
     position: Vector2(gameWidth + pipeWidth, 0),
-    size: Vector2(pipeWidth, gameHeight - groundHeight),
+    size: Vector2(pipeWidth, stageHeight),
     anchor: Anchor.topLeft,
   );
 
@@ -45,13 +45,11 @@ class Candle extends PositionComponent with HasGameReference<FlappyStock> {
 
   @override
   void render(Canvas canvas) {
-    final maxY = gameHeight - groundHeight;
-
-    // JSON座標 → Flame座標変換（上端=0、下方向が正）
-    final flameHigh  = maxY - high;
-    final flameLow   = maxY - low;
-    final flameOpen  = maxY - open;
-    final flameClose = maxY - close;
+    // JSON座標 → Flame座標変換（上端=0、下方向が正）、3倍スケール
+    final flameHigh  = stageHeight - high  * 3;
+    final flameLow   = stageHeight - low   * 3;
+    final flameOpen  = stageHeight - open  * 3;
+    final flameClose = stageHeight - close * 3;
 
     final bodyTop    = math.min(flameOpen, flameClose);
     final bodyBottom = math.max(flameOpen, flameClose);
@@ -90,8 +88,8 @@ class Candle extends PositionComponent with HasGameReference<FlappyStock> {
     if (!_scored && position.x + pipeWidth < gameWidth * 0.25) {
       _scored = true;
       final birdFlameY = getBirdY();
-      final jsonY = ((gameHeight - groundHeight) - birdFlameY)
-          .clamp(0.0, gameHeight - groundHeight);
+      final jsonY = ((stageHeight - birdFlameY) / 3)
+          .clamp(0.0, stageHeight / 3);
       // 鳥がヒゲの範囲内（low 〜 high）を通過した場合のみスコアを加算
       if (jsonY >= low && jsonY <= high) {
         game.score.value += jsonY.round();

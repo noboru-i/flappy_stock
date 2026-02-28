@@ -56,10 +56,9 @@ class Bird extends CircleComponent
     }
 
     // 地面に当たったら停止
-    final groundTop = gameHeight - groundHeight;
-    if (position.y + radius >= groundTop) {
+    if (position.y + radius >= stageHeight) {
       _velocity.y = 0;
-      position.y = groundTop - radius;
+      position.y = stageHeight - radius;
     }
   }
 }

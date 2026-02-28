@@ -53,7 +53,7 @@ class FlappyWorld extends World
 
     game.playState = PlayState.playing;
 
-    _bird = Bird(position: Vector2(gameWidth * 0.25, gameHeight * 0.45));
+    _bird = Bird(position: Vector2(gameWidth * 0.25, stageHeight / 2));
     add(_bird!);
   }
 
@@ -66,6 +66,13 @@ class FlappyWorld extends World
     final speed = _currentStage?.pipeSpeed ?? pipeSpeed;
     _traveledX += speed * dt;
 
+    // カメラが鳥のY座標を追従
+    if (_bird != null) {
+      final targetY = (_bird!.y - gameHeight / 2)
+          .clamp(0.0, stageHeight + groundHeight - gameHeight);
+      game.camera.viewfinder.position = Vector2(0, targetY);
+    }
+
     // 出現タイミングに達したローソク足を追加
     while (_pendingCandles.isNotEmpty &&
            _traveledX >= _pendingCandles.first.spawnX) {
@@ -76,7 +83,7 @@ class FlappyWorld extends World
         open:      data.open,
         close:     data.close,
         speed:     speed,
-        getBirdY:  () => _bird?.y ?? (gameHeight - groundHeight) / 2,
+        getBirdY:  () => _bird?.y ?? stageHeight / 2,
         onScored:  _onCandleScored,
       ));
     }

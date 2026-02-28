@@ -51,7 +51,7 @@ class Ground extends PositionComponent
     // 2枚並べてタイリング
     for (var i = 0; i < 2; i++) {
       add(GroundTile(
-        position: Vector2(gameWidth * i, gameHeight - groundHeight),
+        position: Vector2(gameWidth * i, stageHeight),
         size: Vector2(gameWidth, groundHeight),
       ));
     }

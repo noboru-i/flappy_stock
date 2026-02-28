@@ -92,7 +92,10 @@ class Candle extends PositionComponent with HasGameReference<FlappyStock> {
       final birdFlameY = getBirdY();
       final jsonY = ((gameHeight - groundHeight) - birdFlameY)
           .clamp(0.0, gameHeight - groundHeight);
-      game.score.value += jsonY.round();
+      // 鳥がヒゲの範囲内（low 〜 high）を通過した場合のみスコアを加算
+      if (jsonY >= low && jsonY <= high) {
+        game.score.value += jsonY.round();
+      }
       onScored();
     }
 

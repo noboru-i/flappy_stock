@@ -8,12 +8,16 @@ class OverlayScreen extends StatelessWidget {
     required this.title,
     required this.subtitle,
     this.finalValue,
+    this.rankingWidget,
     this.onTap,
   });
 
   final String title;
   final String subtitle;
   final double? finalValue;
+
+  /// クリア画面で表示するランキングウィジェット（ログイン時のみ）
+  final Widget? rankingWidget;
 
   /// タップ時のコールバック（welcome/gameOver/clearのステート遷移に使用）
   final VoidCallback? onTap;
@@ -37,32 +41,42 @@ class OverlayScreen extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Container(
-        alignment: const Alignment(0, -0.15),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(title, style: titleStyle)
-                .animate()
-                .slideY(duration: 750.ms, begin: -3, end: 0),
-            const SizedBox(height: 24),
-            if (finalValue != null) ...[
-              Text('評価額', style: valueStyle),
-              const SizedBox(height: 8),
-              Text(
-                '¥${finalValue!.toStringAsFixed(0)}',
-                style: GoogleFonts.pressStart2p(
-                  fontSize: 20,
-                  color: const Color(0xFF26A69A),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        alignment: rankingWidget != null
+            ? Alignment.topCenter
+            : const Alignment(0, -0.15),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (rankingWidget != null) const SizedBox(height: 24),
+              Text(title, style: titleStyle)
+                  .animate()
+                  .slideY(duration: 750.ms, begin: -3, end: 0),
+              const SizedBox(height: 24),
+              if (finalValue != null) ...[
+                Text('評価額', style: valueStyle),
+                const SizedBox(height: 8),
+                Text(
+                  '¥${finalValue!.toStringAsFixed(0)}',
+                  style: GoogleFonts.pressStart2p(
+                    fontSize: 20,
+                    color: const Color(0xFF26A69A),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
+              ],
+              Text(subtitle, style: subStyle)
+                  .animate(onPlay: (c) => c.repeat())
+                  .fadeIn(duration: 1.seconds)
+                  .then()
+                  .fadeOut(duration: 1.seconds),
+              if (rankingWidget != null) ...[
+                const SizedBox(height: 20),
+                rankingWidget!,
+              ],
             ],
-            Text(subtitle, style: subStyle)
-                .animate(onPlay: (c) => c.repeat())
-                .fadeIn(duration: 1.seconds)
-                .then()
-                .fadeOut(duration: 1.seconds),
-          ],
+          ),
         ),
       ),
     );

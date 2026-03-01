@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../flappy_stock.dart';
 import '../services/auth_service.dart';
+import '../services/ranking_service.dart';
 import 'overlay_screen.dart';
 import 'playing_overlay.dart';
+import 'ranking_list.dart';
 import 'stage_select_screen.dart';
 
 class GameApp extends StatefulWidget {
@@ -57,13 +59,7 @@ class _GameAppState extends State<GameApp> {
                               ),
                           PlayState.clear.name: (_, game) {
                             final flappyStock = game as FlappyStock;
-                            return OverlayScreen(
-                              title: 'STAGE CLEAR!',
-                              subtitle: 'TAP TO RETRY',
-                              finalValue: flappyStock.finalValue,
-                              onTap: () => flappyStock.playState =
-                                  PlayState.stageSelect,
-                            );
+                            return _ClearOverlay(game: flappyStock);
                           },
                         },
                       ),
@@ -76,6 +72,50 @@ class _GameAppState extends State<GameApp> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _ClearOverlay extends StatefulWidget {
+  const _ClearOverlay({required this.game});
+  final FlappyStock game;
+
+  @override
+  State<_ClearOverlay> createState() => _ClearOverlayState();
+}
+
+class _ClearOverlayState extends State<_ClearOverlay> {
+  bool _submitted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _submitScore();
+  }
+
+  Future<void> _submitScore() async {
+    if (_submitted) return;
+    final stageId = widget.game.currentStageId;
+    if (stageId == null) return;
+    final user = AuthService.instance.currentUser;
+    if (user == null) return;
+    _submitted = true;
+    await RankingService.instance.submitScore(stageId, widget.game.finalValue);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final stageId = widget.game.currentStageId;
+    final user = AuthService.instance.currentUser;
+
+    return OverlayScreen(
+      title: 'STAGE CLEAR!',
+      subtitle: 'TAP TO RETRY',
+      finalValue: widget.game.finalValue,
+      rankingWidget: (user != null && stageId != null)
+          ? RankingList(stageId: stageId)
+          : null,
+      onTap: () => widget.game.playState = PlayState.stageSelect,
     );
   }
 }

@@ -1,0 +1,13 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "scores",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "stageId", "order": "ASCENDING" },
+        { "fieldPath": "finalValue", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

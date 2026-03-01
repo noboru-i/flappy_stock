@@ -11,6 +11,7 @@ class FlappyWorld extends World with HasGameReference<FlappyStock> {
   List<StageData> _stages = [];
   List<StageData> get stages => _stages;
   StageData? _currentStage;
+  String? get currentStageId => _currentStage?.id;
 
   // 未出現ローソク足のキュー（spawnX 昇順）
   final List<CandleData> _pendingCandles = [];

@@ -126,7 +126,7 @@ class _TradeModeButtons extends StatelessWidget {
                         children: [
                           Expanded(
                             child: _ModeButton(
-                              label: '現物買い',
+                              label: '現物買い\n(A)',
                               mode: TradeMode.buy,
                               currentMode: currentMode,
                               // 現金がないと買えない
@@ -137,7 +137,7 @@ class _TradeModeButtons extends StatelessWidget {
                           const SizedBox(width: 6),
                           Expanded(
                             child: _ModeButton(
-                              label: '現物売り',
+                              label: '現物売り\n(S)',
                               mode: TradeMode.sell,
                               currentMode: currentMode,
                               // 保有株がないと売れない
@@ -148,7 +148,7 @@ class _TradeModeButtons extends StatelessWidget {
                           const SizedBox(width: 6),
                           Expanded(
                             child: _ModeButton(
-                              label: '空売り',
+                              label: '空売り\n(D)',
                               mode: TradeMode.short,
                               currentMode: currentMode,
                               // 既に空売りポジションがあると新規不可

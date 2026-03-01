@@ -74,25 +74,36 @@ class FlappyStock extends FlameGame with HasCollisionDetection, KeyboardEvents {
     KeyEvent event,
     Set<LogicalKeyboardKey> keysPressed,
   ) {
-    if (event.logicalKey == LogicalKeyboardKey.space) {
-      if (event is KeyDownEvent) {
-        if (playState == PlayState.playing) {
-          flapStart();
-        } else if (playState == PlayState.welcome ||
-                   playState == PlayState.gameOver ||
-                   playState == PlayState.clear) {
-          playState = PlayState.stageSelect;
-        }
-        return KeyEventResult.handled;
-      } else if (event is KeyUpEvent) {
-        if (playState == PlayState.playing) {
-          flapEnd();
-        }
-        return KeyEventResult.handled;
+    if (playState != PlayState.playing) return KeyEventResult.ignored;
+
+    // A/S/D キーをそれぞれのモードボタンに対応
+    final modeForKey = switch (event.logicalKey) {
+      LogicalKeyboardKey.keyA => TradeMode.buy,
+      LogicalKeyboardKey.keyS => TradeMode.sell,
+      LogicalKeyboardKey.keyD => TradeMode.short,
+      _ => null,
+    };
+    if (modeForKey == null) return KeyEventResult.ignored;
+
+    if (event is KeyDownEvent) {
+      if (!_isModeDisabled(modeForKey)) {
+        tradeMode.value = modeForKey;
+        flapStart();
       }
+      return KeyEventResult.handled;
+    } else if (event is KeyUpEvent) {
+      flapEnd();
+      return KeyEventResult.handled;
     }
     return KeyEventResult.ignored;
   }
+
+  /// ボタンの無効化条件（playing_overlay.dart と同じロジック）
+  bool _isModeDisabled(TradeMode mode) => switch (mode) {
+    TradeMode.buy   => cash.value <= 0,
+    TradeMode.sell  => shares.value <= 0,
+    TradeMode.short => shortPosition.value != null,
+  };
 
   @override
   Color backgroundColor() => const Color(0xff131722);

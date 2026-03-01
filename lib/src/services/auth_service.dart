@@ -7,7 +7,6 @@ class AuthService {
   static final instance = AuthService._();
 
   final _auth = FirebaseAuth.instance;
-  final _googleSignIn = GoogleSignIn();
 
   User? get currentUser => _auth.currentUser;
 
@@ -18,12 +17,10 @@ class AuthService {
       final provider = GoogleAuthProvider();
       await _auth.signInWithPopup(provider);
     } else {
-      final googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return;
-      final googleAuth = await googleUser.authentication;
+      final googleUser = await GoogleSignIn.instance.authenticate();
+      final auth = googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+        idToken: auth.idToken,
       );
       await _auth.signInWithCredential(credential);
     }
@@ -32,7 +29,7 @@ class AuthService {
   Future<void> signOut() async {
     await _auth.signOut();
     if (!kIsWeb) {
-      await _googleSignIn.signOut();
+      await GoogleSignIn.instance.signOut();
     }
   }
 }

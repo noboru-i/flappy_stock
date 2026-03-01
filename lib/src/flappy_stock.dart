@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'flappy_world.dart';
 import 'config.dart';
+import 'components/components.dart';
 import 'data/pipe_data.dart';
 
 enum PlayState { welcome, stageSelect, playing, gameOver, clear }
@@ -66,6 +67,7 @@ class FlappyStock extends FlameGame with HasCollisionDetection, KeyboardEvents {
   FutureOr<void> onLoad() async {
     super.onLoad();
     camera.viewfinder.anchor = Anchor.topLeft;
+    camera.viewport.add(MinimapComponent());
     playState = PlayState.welcome;
   }
 

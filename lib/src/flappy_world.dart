@@ -15,6 +15,10 @@ class FlappyWorld extends World with HasGameReference<FlappyStock> {
   // 未出現ローソク足のキュー（spawnX 昇順）
   final List<CandleData> _pendingCandles = [];
 
+  // ステージ全ローソク足（ミニマップ用）
+  List<CandleData> _allCandles = [];
+  List<CandleData> get allCandles => _allCandles;
+
   // 鳥の仮想累積移動距離
   double _traveledX = 0;
   double get traveledX => _traveledX;
@@ -26,6 +30,7 @@ class FlappyWorld extends World with HasGameReference<FlappyStock> {
 
   // 現在の鳥への参照（スコア判定に使用）
   Bird? _bird;
+  double get birdFlameY => _bird?.y ?? stageHeight / 2;
 
   @override
   FutureOr<void> onLoad() async {
@@ -56,6 +61,7 @@ class FlappyWorld extends World with HasGameReference<FlappyStock> {
 
     _currentStage = stage;
     _totalCandles = _currentStage!.candles.length;
+    _allCandles = List.unmodifiable(_currentStage!.candles);
 
     // キューを初期化
     _pendingCandles

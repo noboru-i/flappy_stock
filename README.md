@@ -18,11 +18,13 @@ Flutter + Flame で作った Flappy Bird ライクなゲーム。株価チャー
 | `make run` | Chrome で開発サーバーを起動 |
 | `make build` | Web 向けリリースビルド |
 | `make deploy` | ビルド → Firebase Hosting にデプロイ |
+| `make deploy-firestore` | Firestore セキュリティルール・インデックスをデプロイ |
 
 ```bash
-make run     # 開発
-make build   # ビルドのみ
-make deploy  # ビルド + デプロイ
+make run               # 開発
+make build             # ビルドのみ
+make deploy            # ビルド + デプロイ
+make deploy-firestore  # Firestore ルール・インデックスのみデプロイ
 ```
 
 ## ゲームの遊び方

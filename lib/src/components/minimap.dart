@@ -69,7 +69,8 @@ class MinimapComponent extends PositionComponent
 
     final contentWidth = _minimapWidth - _padding * 2;
     final contentHeight = _minimapHeight - _padding * 2;
-    final maxJsonY = stageHeight / 3; // ≈ 616
+    final yMin   = game.stageYMin;
+    final yRange = game.stageYMax - yMin;
 
     // ステージ全体スパン（最後のローソク足 spawnX + 余白）
     final totalSpan = allCandles.last.spawnX + 600.0;
@@ -82,9 +83,9 @@ class MinimapComponent extends PositionComponent
 
       // ヒゲ
       final yHigh =
-          _padding + (1.0 - candle.high / maxJsonY) * contentHeight;
+          _padding + (1.0 - (candle.high - yMin) / yRange) * contentHeight;
       final yLow =
-          _padding + (1.0 - candle.low / maxJsonY) * contentHeight;
+          _padding + (1.0 - (candle.low - yMin) / yRange) * contentHeight;
       _wickPaint.color = bodyPaint.color;
       canvas.drawLine(
         Offset(x + 1.5, yHigh),
@@ -94,9 +95,9 @@ class MinimapComponent extends PositionComponent
 
       // 実体
       final yOpen =
-          _padding + (1.0 - candle.open / maxJsonY) * contentHeight;
+          _padding + (1.0 - (candle.open - yMin) / yRange) * contentHeight;
       final yClose =
-          _padding + (1.0 - candle.close / maxJsonY) * contentHeight;
+          _padding + (1.0 - (candle.close - yMin) / yRange) * contentHeight;
       canvas.drawRect(
         Rect.fromLTRB(x, min(yOpen, yClose), x + 3, max(yOpen, yClose)),
         bodyPaint,
@@ -113,10 +114,10 @@ class MinimapComponent extends PositionComponent
     );
 
     // 鳥の現在位置（黄色い丸）
-    final birdJsonY = (stageHeight - birdFlameY) / 3;
+    final birdJsonY = yMin + (1 - birdFlameY / stageHeight) * yRange;
     final birdMiniY =
         _padding +
-        (1.0 - (birdJsonY / maxJsonY).clamp(0.0, 1.0)) * contentHeight;
+        (1.0 - ((birdJsonY - yMin) / yRange).clamp(0.0, 1.0)) * contentHeight;
     canvas.drawCircle(Offset(progressX, birdMiniY), 2.5, _birdPaint);
   }
 }

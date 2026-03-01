@@ -25,7 +25,7 @@ class PipeLoader {
     for (final key in keys) {
       final raw = await rootBundle.loadString(key);
       final json = jsonDecode(raw) as Map<String, dynamic>;
-      stages.add(_normalizeSpawnX(StageData.fromJson(json)));
+      stages.add(_normalizeYScale(_normalizeSpawnX(StageData.fromJson(json))));
     }
 
     // OHLC 整合性バリデーション（高値 >= 安値、ヒゲ範囲内にボディ）
@@ -80,6 +80,33 @@ class PipeLoader {
       name: stage.name,
       pipeSpeed: stage.pipeSpeed,
       candles: normalized,
+      yMin: stage.yMin,
+      yMax: stage.yMax,
+    );
+  }
+
+  /// ステージ内の全ローソク足から Y 範囲を計算し、15% マージンを付与する。
+  static StageData _normalizeYScale(StageData stage) {
+    final candles = stage.candles;
+    if (candles.isEmpty) return stage;
+
+    var dataMin = candles.first.low;
+    var dataMax = candles.first.high;
+    for (final c in candles) {
+      if (c.low  < dataMin) dataMin = c.low;
+      if (c.high > dataMax) dataMax = c.high;
+    }
+
+    final range  = dataMax - dataMin;
+    final margin = range * 0.15;
+
+    return StageData(
+      id:       stage.id,
+      name:     stage.name,
+      pipeSpeed: stage.pipeSpeed,
+      candles:  stage.candles,
+      yMin:     dataMin - margin,
+      yMax:     dataMax + margin,
     );
   }
 }

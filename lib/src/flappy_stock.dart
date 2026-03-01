@@ -40,6 +40,8 @@ class FlappyStock extends FlameGame with HasCollisionDetection, KeyboardEvents {
   List<StageData> get stages => (world as FlappyWorld).stages;
   double get pipeScrollOffset => (world as FlappyWorld).traveledX;
   String? get currentStageId => (world as FlappyWorld).currentStageId;
+  double get stageYMin => (world as FlappyWorld).stageYMin;
+  double get stageYMax => (world as FlappyWorld).stageYMax;
 
   late PlayState _playState;
   PlayState get playState => _playState;

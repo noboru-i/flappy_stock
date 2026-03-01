@@ -33,6 +33,10 @@ class FlappyWorld extends World with HasGameReference<FlappyStock> {
   Bird? _bird;
   double get birdFlameY => _bird?.y ?? stageHeight / 2;
 
+  // ステージの表示 Y 範囲（JSON 座標）
+  double stageYMin = 0.0;
+  double stageYMax = stageHeight / 3;
+
   @override
   FutureOr<void> onLoad() async {
     _stages = await PipeLoader.load();
@@ -63,6 +67,8 @@ class FlappyWorld extends World with HasGameReference<FlappyStock> {
     _currentStage = stage;
     _totalCandles = _currentStage!.candles.length;
     _allCandles = List.unmodifiable(_currentStage!.candles);
+    stageYMin = _currentStage!.yMin;
+    stageYMax = _currentStage!.yMax;
 
     // キューを初期化
     _pendingCandles

@@ -58,11 +58,13 @@ class Candle extends PositionComponent with HasGameReference<FlappyStock> {
 
   @override
   void render(Canvas canvas) {
-    // JSON座標 → Flame座標変換（上端=0、下方向が正）、3倍スケール
-    final flameHigh  = stageHeight - high  * 3;
-    final flameLow   = stageHeight - low   * 3;
-    final flameOpen  = stageHeight - open  * 3;
-    final flameClose = stageHeight - close * 3;
+    // JSON座標 → Flame座標変換（yMin〜yMax の範囲をステージ全体にマッピング）
+    final yMin   = game.stageYMin;
+    final yRange = game.stageYMax - yMin;
+    final flameHigh  = stageHeight * (1 - (high  - yMin) / yRange);
+    final flameLow   = stageHeight * (1 - (low   - yMin) / yRange);
+    final flameOpen  = stageHeight * (1 - (open  - yMin) / yRange);
+    final flameClose = stageHeight * (1 - (close - yMin) / yRange);
 
     final bodyTop    = math.min(flameOpen, flameClose);
     final bodyBottom = math.max(flameOpen, flameClose);
@@ -101,8 +103,10 @@ class Candle extends PositionComponent with HasGameReference<FlappyStock> {
     if (!_scored && position.x + pipeWidth < gameWidth * 0.25) {
       _scored = true;
       final birdFlameY = getBirdY();
-      final jsonY = ((stageHeight - birdFlameY) / 3)
-          .clamp(0.0, stageHeight / 3);
+      final yMin   = game.stageYMin;
+      final yRange = game.stageYMax - yMin;
+      final jsonY  = (yMin + (1 - birdFlameY / stageHeight) * yRange)
+          .clamp(yMin, game.stageYMax);
       onScored(jsonY, high, low, close, isLast);
     }
 

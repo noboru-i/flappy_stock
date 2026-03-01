@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -9,8 +10,6 @@ class Background extends PositionComponent with HasGameReference<FlappyStock> {
   static const _gridColor = Color(0xFF252540);
   static const _labelColor = Color(0xFF787B9E);
 
-  // Y軸グリッド間隔（JSON Y座標単位：画面下端=0）
-  static const _gridIntervalJson = 50.0;
   // X軸グリッド間隔（Flame X座標単位：ゲーム幅 400px を 5 分割）
   static const _gridIntervalX = gameWidth / 5;
   static const _labelFontSize = 10.0;
@@ -19,6 +18,10 @@ class Background extends PositionComponent with HasGameReference<FlappyStock> {
   late final Paint _bgPaint;
   late final Paint _gridPaint;
   final List<_GridLine> _gridLines = [];
+
+  // グリッド再計算のトリガー用キャッシュ
+  double _cachedYMin = double.infinity;
+  double _cachedYMax = double.negativeInfinity;
 
   @override
   Future<void> onLoad() async {
@@ -30,12 +33,40 @@ class Background extends PositionComponent with HasGameReference<FlappyStock> {
     _gridPaint = Paint()
       ..color = _gridColor
       ..strokeWidth = 1.0;
+  }
 
-    // グリッド線の位置と価格ラベルを事前計算
-    final maxJsonY = stageHeight / 3;
-    var jsonY = (maxJsonY / _gridIntervalJson).floor() * _gridIntervalJson;
-    while (jsonY >= 0) {
-      final flameY = stageHeight - jsonY * 3;
+  @override
+  void update(double dt) {
+    super.update(dt);
+    if (game.playState != PlayState.playing) return;
+
+    final yMin = game.stageYMin;
+    final yMax = game.stageYMax;
+    if (yMin == _cachedYMin && yMax == _cachedYMax) return;
+
+    _cachedYMin = yMin;
+    _cachedYMax = yMax;
+    _rebuildGridLines(yMin, yMax);
+  }
+
+  void _rebuildGridLines(double yMin, double yMax) {
+    _gridLines.clear();
+    final yRange = yMax - yMin;
+
+    // Y軸グリッド間隔を表示範囲に応じて自動計算（約5〜10本になるよう）
+    final rawInterval = yRange / 7;
+    final magnitude = (rawInterval > 0)
+        ? math.pow(10, (math.log(rawInterval) / math.ln10).floor()).toDouble()
+        : 1.0;
+    final normalized = rawInterval / magnitude;
+    final niceInterval = normalized < 2 ? magnitude
+        : normalized < 5 ? magnitude * 2
+        : magnitude * 5;
+
+    final firstY = (yMin / niceInterval).ceil() * niceInterval;
+    var jsonY = firstY;
+    while (jsonY <= yMax) {
+      final flameY = stageHeight * (1 - (jsonY - yMin) / yRange);
       final pb = ui.ParagraphBuilder(
         ui.ParagraphStyle(textDirection: ui.TextDirection.ltr),
       )
@@ -46,7 +77,7 @@ class Background extends PositionComponent with HasGameReference<FlappyStock> {
         ..addText(jsonY.round().toString());
       final para = pb.build()..layout(const ui.ParagraphConstraints(width: 60));
       _gridLines.add(_GridLine(flameY: flameY, paragraph: para));
-      jsonY -= _gridIntervalJson;
+      jsonY += niceInterval;
     }
   }
 

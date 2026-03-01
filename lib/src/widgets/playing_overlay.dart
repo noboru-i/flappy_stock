@@ -107,39 +107,63 @@ class _TradeModeButtons extends StatelessWidget {
     return ValueListenableBuilder<TradeMode>(
       valueListenable: game.tradeMode,
       builder: (context, currentMode, _) {
-        return Container(
-          color: Colors.black.withValues(alpha: 0.65),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: _ModeButton(
-                  label: '現物買い',
-                  mode: TradeMode.buy,
-                  currentMode: currentMode,
-                  game: game,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: _ModeButton(
-                  label: '現物売り',
-                  mode: TradeMode.sell,
-                  currentMode: currentMode,
-                  game: game,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: _ModeButton(
-                  label: '空売り',
-                  mode: TradeMode.short,
-                  currentMode: currentMode,
-                  game: game,
-                ),
-              ),
-            ],
-          ),
+        return ValueListenableBuilder<double>(
+          valueListenable: game.shares,
+          builder: (context, shares, _) {
+            return ValueListenableBuilder<double>(
+              valueListenable: game.cash,
+              builder: (context, cash, _) {
+                return ValueListenableBuilder<ShortPosition?>(
+                  valueListenable: game.shortPosition,
+                  builder: (context, shortPos, _) {
+                    return Container(
+                      color: Colors.black.withValues(alpha: 0.65),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 8,
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _ModeButton(
+                              label: '現物買い',
+                              mode: TradeMode.buy,
+                              currentMode: currentMode,
+                              // 現金がないと買えない
+                              isDisabled: cash <= 0,
+                              game: game,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: _ModeButton(
+                              label: '現物売り',
+                              mode: TradeMode.sell,
+                              currentMode: currentMode,
+                              // 保有株がないと売れない
+                              isDisabled: shares <= 0,
+                              game: game,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: _ModeButton(
+                              label: '空売り',
+                              mode: TradeMode.short,
+                              currentMode: currentMode,
+                              // 既に空売りポジションがあると新規不可
+                              isDisabled: shortPos != null,
+                              game: game,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            );
+          },
         );
       },
     );
@@ -151,45 +175,56 @@ class _ModeButton extends StatelessWidget {
     required this.label,
     required this.mode,
     required this.currentMode,
+    required this.isDisabled,
     required this.game,
   });
 
   final String label;
   final TradeMode mode;
   final TradeMode currentMode;
+  final bool isDisabled;
   final FlappyStock game;
 
   @override
   Widget build(BuildContext context) {
     final isSelected = mode == currentMode;
+
+    final bgColor = isDisabled
+        ? const Color(0xFF1A1A24)
+        : isSelected
+            ? const Color(0xFF26A69A)
+            : const Color(0xFF2A2A3A);
+    final borderColor = isDisabled
+        ? const Color(0xFF333340)
+        : isSelected
+            ? const Color(0xFF26A69A)
+            : const Color(0xFF555570);
+    final textColor = isDisabled
+        ? Colors.white24
+        : isSelected
+            ? Colors.white
+            : Colors.white54;
+
     return GestureDetector(
-      onTapDown: (_) {
-        game.tradeMode.value = mode;
-        game.flapStart();
-      },
-      onTapUp: (_) => game.flapEnd(),
-      onTapCancel: () => game.flapEnd(),
+      onTapDown: isDisabled
+          ? null
+          : (_) {
+              game.tradeMode.value = mode;
+              game.flapStart();
+            },
+      onTapUp: isDisabled ? null : (_) => game.flapEnd(),
+      onTapCancel: isDisabled ? null : () => game.flapEnd(),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected
-              ? const Color(0xFF26A69A)
-              : const Color(0xFF2A2A3A),
+          color: bgColor,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: isSelected
-                ? const Color(0xFF26A69A)
-                : const Color(0xFF555570),
-            width: 2,
-          ),
+          border: Border.all(color: borderColor, width: 2),
         ),
         child: Text(
           label,
           textAlign: TextAlign.center,
-          style: GoogleFonts.pressStart2p(
-            fontSize: 9,
-            color: isSelected ? Colors.white : Colors.white54,
-          ),
+          style: GoogleFonts.pressStart2p(fontSize: 9, color: textColor),
         ),
       ),
     );

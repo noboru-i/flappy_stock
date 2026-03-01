@@ -5,11 +5,18 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'flappy_world.dart';
-import 'components/bird.dart';
 import 'config.dart';
 import 'data/pipe_data.dart';
 
 enum PlayState { welcome, stageSelect, playing, gameOver, clear }
+
+enum TradeMode { buy, sell, short }
+
+class ShortPosition {
+  const ShortPosition({required this.price, required this.shares});
+  final double price;
+  final double shares;
+}
 
 class FlappyStock extends FlameGame with HasCollisionDetection, KeyboardEvents {
   FlappyStock()
@@ -21,8 +28,13 @@ class FlappyStock extends FlameGame with HasCollisionDetection, KeyboardEvents {
         world: FlappyWorld(),
       );
 
-  // Flutter 状態管理との橋渡し
-  final ValueNotifier<int> score = ValueNotifier(0);
+  // 取引状態
+  final ValueNotifier<double> shares = ValueNotifier(initialShares);
+  final ValueNotifier<double> cash = ValueNotifier(0.0);
+  final ValueNotifier<TradeMode> tradeMode = ValueNotifier(TradeMode.sell);
+  final ValueNotifier<ShortPosition?> shortPosition = ValueNotifier(null);
+  double finalPrice = 0.0;
+  double get finalValue => shares.value * finalPrice + cash.value;
 
   List<StageData> get stages => (world as FlappyWorld).stages;
   double get pipeScrollOffset => (world as FlappyWorld).traveledX;
@@ -37,13 +49,18 @@ class FlappyStock extends FlameGame with HasCollisionDetection, KeyboardEvents {
       case PlayState.gameOver:
       case PlayState.clear:
         overlays.add(state.name);
+        overlays.remove(PlayState.playing.name);
       case PlayState.playing:
         overlays.remove(PlayState.welcome.name);
         overlays.remove(PlayState.stageSelect.name);
         overlays.remove(PlayState.gameOver.name);
         overlays.remove(PlayState.clear.name);
+        overlays.add(PlayState.playing.name);
     }
   }
+
+  void flapStart() => (world as FlappyWorld).flapStart();
+  void flapEnd() => (world as FlappyWorld).flapEnd();
 
   @override
   FutureOr<void> onLoad() async {
@@ -58,10 +75,9 @@ class FlappyStock extends FlameGame with HasCollisionDetection, KeyboardEvents {
     Set<LogicalKeyboardKey> keysPressed,
   ) {
     if (event.logicalKey == LogicalKeyboardKey.space) {
-      final flappyWorld = world as FlappyWorld;
       if (event is KeyDownEvent) {
         if (playState == PlayState.playing) {
-          flappyWorld.children.query<Bird>().firstOrNull?.flapStart();
+          flapStart();
         } else if (playState == PlayState.welcome ||
                    playState == PlayState.gameOver ||
                    playState == PlayState.clear) {
@@ -70,7 +86,7 @@ class FlappyStock extends FlameGame with HasCollisionDetection, KeyboardEvents {
         return KeyEventResult.handled;
       } else if (event is KeyUpEvent) {
         if (playState == PlayState.playing) {
-          flappyWorld.children.query<Bird>().firstOrNull?.flapEnd();
+          flapEnd();
         }
         return KeyEventResult.handled;
       }

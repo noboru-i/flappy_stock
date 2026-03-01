@@ -18,3 +18,7 @@ const groundSpeed  = pipeSpeed;          // パイプと同速
 
 // ステージ縦サイズ（プレイ領域を3倍に拡大）
 const stageHeight = (gameHeight - groundHeight) * 3;
+
+// 取引
+const double initialShares = 100.0;
+const double shortSellShares = 100.0;

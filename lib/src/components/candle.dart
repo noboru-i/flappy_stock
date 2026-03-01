@@ -4,6 +4,14 @@ import 'package:flutter/material.dart';
 import '../flappy_stock.dart';
 import '../config.dart';
 
+typedef CandleScoredCallback = void Function(
+  double jsonY,
+  double high,
+  double low,
+  double close,
+  bool isLast,
+);
+
 class Candle extends PositionComponent with HasGameReference<FlappyStock> {
   Candle({
     required this.high,
@@ -11,6 +19,7 @@ class Candle extends PositionComponent with HasGameReference<FlappyStock> {
     required this.open,
     required this.close,
     required this.speed,
+    required this.isLast,
     required this.getBirdY,
     required this.onScored,
   }) : super(
@@ -32,10 +41,14 @@ class Candle extends PositionComponent with HasGameReference<FlappyStock> {
   final double close;
 
   final double speed;
+
+  /// このローソク足がステージ最後のものか
+  final bool isLast;
+
   final double Function() getBirdY;
 
-  /// 鳥が通過しスコア加算されたときに呼ばれるコールバック
-  final VoidCallback onScored;
+  /// 鳥が通過したときに呼ばれるコールバック
+  final CandleScoredCallback onScored;
 
   bool _scored = false;
 
@@ -84,17 +97,13 @@ class Candle extends PositionComponent with HasGameReference<FlappyStock> {
 
     position.x -= speed * dt;
 
-    // 鳥の x 位置（gameWidth * 0.25）をローソク足右端が通過した瞬間にスコア加算
+    // 鳥の x 位置（gameWidth * 0.25）をローソク足右端が通過した瞬間に判定
     if (!_scored && position.x + pipeWidth < gameWidth * 0.25) {
       _scored = true;
       final birdFlameY = getBirdY();
       final jsonY = ((stageHeight - birdFlameY) / 3)
           .clamp(0.0, stageHeight / 3);
-      // 鳥がヒゲの範囲内（low 〜 high）を通過した場合のみスコアを加算
-      if (jsonY >= low && jsonY <= high) {
-        game.score.value += jsonY.round();
-      }
-      onScored();
+      onScored(jsonY, high, low, close, isLast);
     }
 
     // 画面左端を超えたら削除

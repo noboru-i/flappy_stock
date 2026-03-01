@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../flappy_stock.dart';
 import '../services/auth_service.dart';
-import 'score_card.dart';
 import 'overlay_screen.dart';
+import 'playing_overlay.dart';
 import 'stage_select_screen.dart';
 
 class GameApp extends StatefulWidget {
@@ -28,7 +28,6 @@ class _GameAppState extends State<GameApp> {
         body: SafeArea(
           child: Column(
             children: [
-              ScoreCard(score: _game.score),
               Expanded(
                 child: Center(
                   child: FittedBox(
@@ -38,24 +37,32 @@ class _GameAppState extends State<GameApp> {
                       child: GameWidget(
                         game: _game,
                         overlayBuilderMap: {
-                          PlayState.welcome.name: (_, _) =>
-                              const OverlayScreen(
+                          PlayState.welcome.name: (_, game) =>
+                              OverlayScreen(
                                 title: 'FLAPPY STOCK',
                                 subtitle: 'TAP TO START',
+                                onTap: () => (game as FlappyStock).playState =
+                                    PlayState.stageSelect,
                               ),
                           PlayState.stageSelect.name: (_, game) =>
                               StageSelectScreen(game: game as FlappyStock),
-                          PlayState.gameOver.name: (_, _) =>
-                              const OverlayScreen(
+                          PlayState.playing.name: (_, game) =>
+                              PlayingOverlay(game: game as FlappyStock),
+                          PlayState.gameOver.name: (_, game) =>
+                              OverlayScreen(
                                 title: 'GAME OVER',
                                 subtitle: 'TAP TO RETRY',
+                                onTap: () => (game as FlappyStock).playState =
+                                    PlayState.stageSelect,
                               ),
                           PlayState.clear.name: (_, game) {
                             final flappyStock = game as FlappyStock;
                             return OverlayScreen(
                               title: 'STAGE CLEAR!',
                               subtitle: 'TAP TO RETRY',
-                              score: flappyStock.score.value,
+                              finalValue: flappyStock.finalValue,
+                              onTap: () => flappyStock.playState =
+                                  PlayState.stageSelect,
                             );
                           },
                         },

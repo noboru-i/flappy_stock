@@ -49,7 +49,10 @@ void main(List<String> args) async {
       final raw = await file.readAsString();
       final records = jsonDecode(raw) as List<dynamic>;
 
-      final candles = records.map((dynamic r) {
+      // 直近12データのみを対象とする
+      final recent = records.length > 12 ? records.sublist(records.length - 12) : records;
+
+      final candles = recent.map((dynamic r) {
         final map = r as Map<String, dynamic>;
         final date = DateTime.parse(map['date'] as String);
         // Unix タイムスタンプ（秒）を spawnX として利用

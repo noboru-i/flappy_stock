@@ -2,15 +2,27 @@ import 'dart:async';
 import 'package:flame/components.dart';
 import 'flappy_stock.dart';
 import 'config.dart';
+import 'data/news_data.dart';
+import 'data/news_loader.dart';
 import 'data/pipe_data.dart';
 import 'data/pipe_loader.dart';
 import 'components/components.dart';
 
 class FlappyWorld extends World with HasGameReference<FlappyStock> {
+  static const _newsBubbleHalfWidth = 130.0;
+  static const _newsBubbleTailPadding = 12.0;
+
   List<StageData> _stages = [];
   List<StageData> get stages => _stages;
   StageData? _currentStage;
   String? get currentStageId => _currentStage?.id;
+  Map<String, List<NewsData>> _currentStageNews = const {};
+  final List<_ScheduledNewsBubble> _scheduledNews = <_ScheduledNewsBubble>[];
+  int _nextScheduledNewsIndex = 0;
+  final List<_ActiveNewsBubble> _activeNewsBubbles = <_ActiveNewsBubble>[];
+
+  // stageId -> yyyy-MM-dd -> NewsData[]
+  Map<String, Map<String, List<NewsData>>> _newsByStage = const {};
 
   // 未出現ローソク足のキュー（spawnX 昇順）
   final List<CandleData> _pendingCandles = [];
@@ -39,6 +51,7 @@ class FlappyWorld extends World with HasGameReference<FlappyStock> {
   @override
   FutureOr<void> onLoad() async {
     _stages = await PipeLoader.load();
+    _newsByStage = await NewsLoader.loadGrouped();
     add(Background());
     add(Ground());
   }
@@ -64,6 +77,13 @@ class FlappyWorld extends World with HasGameReference<FlappyStock> {
     _spawnedCandles = 0;
 
     _currentStage = stage;
+    _currentStageNews = _newsByStage[stage.id] ?? const {};
+    _scheduledNews
+      ..clear()
+      ..addAll(_buildScheduledNewsBubbles(stage, _currentStageNews));
+    _nextScheduledNewsIndex = 0;
+    _activeNewsBubbles.clear();
+    game.newsTickerBubbles.value = const [];
     _totalCandles = _currentStage!.candles.length;
     _allCandles = List.unmodifiable(_currentStage!.candles);
     stageYMin = _currentStage!.yMin;
@@ -88,6 +108,8 @@ class FlappyWorld extends World with HasGameReference<FlappyStock> {
 
     final speed = _currentStage?.pipeSpeed ?? pipeSpeed;
     _traveledX += speed * dt;
+    _tryStartNewsTicker();
+    _updateNewsBubbleX();
 
     // カメラが鳥のY座標を追従
     if (_bird != null) {
@@ -116,6 +138,133 @@ class FlappyWorld extends World with HasGameReference<FlappyStock> {
           onScored: _onCandleScored,
         ),
       );
+    }
+  }
+
+  void _tryStartNewsTicker() {
+    if (_scheduledNews.isEmpty) return;
+
+    final offLeft = -_newsBubbleHalfWidth - _newsBubbleTailPadding;
+    final offRight = gameWidth + _newsBubbleHalfWidth + _newsBubbleTailPadding;
+
+    while (_nextScheduledNewsIndex < _scheduledNews.length) {
+      final scheduled = _scheduledNews[_nextScheduledNewsIndex];
+      final candleCenterX = _candleCenterX(scheduled.spawnX);
+      if (candleCenterX > offRight) break;
+      if (candleCenterX < offLeft) {
+        _nextScheduledNewsIndex++;
+        continue;
+      }
+
+      _activeNewsBubbles.add(
+        _ActiveNewsBubble(spawnX: scheduled.spawnX, text: scheduled.text),
+      );
+      _nextScheduledNewsIndex++;
+    }
+  }
+
+  void _updateNewsBubbleX() {
+    if (_activeNewsBubbles.isEmpty) {
+      if (game.newsTickerBubbles.value.isNotEmpty) {
+        game.newsTickerBubbles.value = const [];
+      }
+      return;
+    }
+
+    final offLeft = -_newsBubbleHalfWidth - _newsBubbleTailPadding;
+    final offRight = gameWidth + _newsBubbleHalfWidth + _newsBubbleTailPadding;
+
+    _activeNewsBubbles.removeWhere((bubble) {
+      final x = _candleCenterX(bubble.spawnX);
+      return x < offLeft || x > offRight;
+    });
+
+    if (_activeNewsBubbles.isEmpty) {
+      game.newsTickerBubbles.value = const [];
+      return;
+    }
+
+    game.newsTickerBubbles.value = _activeNewsBubbles
+        .map(
+          (bubble) => NewsTickerBubble(
+            text: bubble.text,
+            centerX: _candleCenterX(bubble.spawnX),
+          ),
+        )
+        .toList(growable: false);
+  }
+
+  double _candleCenterX(double spawnX) {
+    return spawnX - _traveledX + gameWidth + pipeWidth * 1.5;
+  }
+
+  List<_ScheduledNewsBubble> _buildScheduledNewsBubbles(
+    StageData stage,
+    Map<String, List<NewsData>> stageNews,
+  ) {
+    if (stageNews.isEmpty) return const [];
+
+    final anchors = <_CandleDateAnchor>[];
+    for (final candle in stage.candles) {
+      final label = candle.xLabel;
+      if (label == null) continue;
+      final parsed = _parseDateKey(NewsLoader.normalizeDateKey(label));
+      if (parsed == null) continue;
+      anchors.add(_CandleDateAnchor(date: parsed, spawnX: candle.spawnX));
+    }
+    if (anchors.isEmpty) return const [];
+    anchors.sort((a, b) => a.date.compareTo(b.date));
+
+    final scheduled = <_ScheduledNewsBubble>[];
+    for (final entry in stageNews.entries) {
+      final parsedNewsDate = _parseDateKey(entry.key);
+      if (parsedNewsDate == null) continue;
+
+      final spawnX = _interpolateSpawnX(parsedNewsDate, anchors);
+      final text = entry.value.map((n) => n.summary).join('  /  ');
+      scheduled.add(
+        _ScheduledNewsBubble(spawnX: spawnX, text: '${entry.key}｜$text'),
+      );
+    }
+
+    scheduled.sort((a, b) => a.spawnX.compareTo(b.spawnX));
+    return scheduled;
+  }
+
+  double _interpolateSpawnX(DateTime target, List<_CandleDateAnchor> anchors) {
+    final first = anchors.first;
+    final last = anchors.last;
+    if (!target.isAfter(first.date)) return first.spawnX;
+    if (!target.isBefore(last.date)) return last.spawnX;
+
+    for (var i = 0; i < anchors.length - 1; i++) {
+      final left = anchors[i];
+      final right = anchors[i + 1];
+      final inRange =
+          !target.isBefore(left.date) && !target.isAfter(right.date);
+      if (!inRange) continue;
+
+      final rangeMs =
+          right.date.millisecondsSinceEpoch - left.date.millisecondsSinceEpoch;
+      if (rangeMs <= 0) return right.spawnX;
+
+      final offsetMs =
+          target.millisecondsSinceEpoch - left.date.millisecondsSinceEpoch;
+      final t = offsetMs / rangeMs;
+      return left.spawnX + (right.spawnX - left.spawnX) * t;
+    }
+
+    return last.spawnX;
+  }
+
+  DateTime? _parseDateKey(String dateKey) {
+    try {
+      if (dateKey.length == 7) {
+        return DateTime.parse('$dateKey-01');
+      }
+      return DateTime.parse(dateKey);
+    } catch (_) {
+      return null;
     }
   }
 
@@ -219,4 +368,25 @@ class FlappyWorld extends World with HasGameReference<FlappyStock> {
 
     add(ScorePopup(text: label, position: _bird!.position.clone()));
   }
+}
+
+class _ActiveNewsBubble {
+  const _ActiveNewsBubble({required this.spawnX, required this.text});
+
+  final double spawnX;
+  final String text;
+}
+
+class _ScheduledNewsBubble {
+  const _ScheduledNewsBubble({required this.spawnX, required this.text});
+
+  final double spawnX;
+  final String text;
+}
+
+class _CandleDateAnchor {
+  const _CandleDateAnchor({required this.date, required this.spawnX});
+
+  final DateTime date;
+  final double spawnX;
 }

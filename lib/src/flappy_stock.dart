@@ -19,6 +19,13 @@ class ShortPosition {
   final double shares;
 }
 
+class NewsTickerBubble {
+  const NewsTickerBubble({required this.text, required this.centerX});
+
+  final String text;
+  final double centerX;
+}
+
 class FlappyStock extends FlameGame with HasCollisionDetection, KeyboardEvents {
   FlappyStock()
     : super(
@@ -34,6 +41,9 @@ class FlappyStock extends FlameGame with HasCollisionDetection, KeyboardEvents {
   final ValueNotifier<double> cash = ValueNotifier(0.0);
   final ValueNotifier<TradeMode> tradeMode = ValueNotifier(TradeMode.sell);
   final ValueNotifier<ShortPosition?> shortPosition = ValueNotifier(null);
+  final ValueNotifier<List<NewsTickerBubble>> newsTickerBubbles = ValueNotifier(
+    const [],
+  );
   double finalPrice = 0.0;
   double get finalValue => shares.value * finalPrice + cash.value;
 
@@ -105,8 +115,8 @@ class FlappyStock extends FlameGame with HasCollisionDetection, KeyboardEvents {
 
   /// ボタンの無効化条件（playing_overlay.dart と同じロジック）
   bool _isModeDisabled(TradeMode mode) => switch (mode) {
-    TradeMode.buy   => cash.value <= 0,
-    TradeMode.sell  => shares.value <= 0,
+    TradeMode.buy => cash.value <= 0,
+    TradeMode.sell => shares.value <= 0,
     TradeMode.short => shortPosition.value != null,
   };
 

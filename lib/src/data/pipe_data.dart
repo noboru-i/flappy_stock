@@ -5,6 +5,7 @@ class CandleData {
     required this.low,
     required this.open,
     required this.close,
+    this.xLabel,
   });
 
   final double spawnX;
@@ -21,12 +22,16 @@ class CandleData {
   /// 終値（JSON座標）
   final double close;
 
+  /// X軸ラベル（例: yyyy/MM/dd）。表示不要な場合は null。
+  final String? xLabel;
+
   factory CandleData.fromJson(Map<String, dynamic> json) => CandleData(
     spawnX: (json['spawnX'] as num).toDouble(),
-    high:   (json['high']   as num).toDouble(),
-    low:    (json['low']    as num).toDouble(),
-    open:   (json['open']   as num).toDouble(),
-    close:  (json['close']  as num).toDouble(),
+    high: (json['high'] as num).toDouble(),
+    low: (json['low'] as num).toDouble(),
+    open: (json['open'] as num).toDouble(),
+    close: (json['close'] as num).toDouble(),
+    xLabel: json['xLabel'] as String?,
   );
 }
 
@@ -52,13 +57,13 @@ class StageData {
   final double yMax;
 
   factory StageData.fromJson(Map<String, dynamic> json) => StageData(
-    id:        json['id'] as String,
-    name:      (json['name'] as String?) ?? json['id'] as String,
+    id: json['id'] as String,
+    name: (json['name'] as String?) ?? json['id'] as String,
     pipeSpeed: (json['pipeSpeed'] as num).toDouble(),
     candles: (json['candles'] as List)
         .map((c) => CandleData.fromJson(c as Map<String, dynamic>))
         .toList(),
-    yMin: 0.0,   // PipeLoader._normalizeYScale で上書きされる
-    yMax: 0.0,   // PipeLoader._normalizeYScale で上書きされる
+    yMin: 0.0, // PipeLoader._normalizeYScale で上書きされる
+    yMax: 0.0, // PipeLoader._normalizeYScale で上書きされる
   );
 }

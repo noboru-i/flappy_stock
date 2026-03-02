@@ -4,16 +4,21 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../config.dart';
 import '../flappy_stock.dart';
+import '../flappy_world.dart';
 
 class Background extends PositionComponent with HasGameReference<FlappyStock> {
   static const _bgColor = Color(0xFF131722);
   static const _gridColor = Color(0xFF252540);
-  static const _labelColor = Color(0xFF787B9E);
+  static const _labelColor = Color(0xFF9CA0C2);
 
   // X軸グリッド間隔（Flame X座標単位：ゲーム幅 400px を 5 分割）
   static const _gridIntervalX = gameWidth / 5;
   static const _labelFontSize = 10.0;
   static const _labelRightPadding = 4.0;
+  static const _xLabelFontSize = 10.0;
+  static const _xLabelColor = Color(0xFF9CA0C2);
+  static const _xLabelBottomPadding = 6.0;
+  static const _xLabelMinSpacing = 56.0;
 
   late final Paint _bgPaint;
   late final Paint _gridPaint;
@@ -59,22 +64,24 @@ class Background extends PositionComponent with HasGameReference<FlappyStock> {
         ? math.pow(10, (math.log(rawInterval) / math.ln10).floor()).toDouble()
         : 1.0;
     final normalized = rawInterval / magnitude;
-    final niceInterval = normalized < 2 ? magnitude
-        : normalized < 5 ? magnitude * 2
+    final niceInterval = normalized < 2
+        ? magnitude
+        : normalized < 5
+        ? magnitude * 2
         : magnitude * 5;
 
     final firstY = (yMin / niceInterval).ceil() * niceInterval;
     var jsonY = firstY;
     while (jsonY <= yMax) {
       final flameY = stageHeight * (1 - (jsonY - yMin) / yRange);
-      final pb = ui.ParagraphBuilder(
-        ui.ParagraphStyle(textDirection: ui.TextDirection.ltr),
-      )
-        ..pushStyle(ui.TextStyle(
-          color: _labelColor,
-          fontSize: _labelFontSize,
-        ))
-        ..addText(jsonY.round().toString());
+      final pb =
+          ui.ParagraphBuilder(
+              ui.ParagraphStyle(textDirection: ui.TextDirection.ltr),
+            )
+            ..pushStyle(
+              ui.TextStyle(color: _labelColor, fontSize: _labelFontSize),
+            )
+            ..addText(jsonY.round().toString());
       final para = pb.build()..layout(const ui.ParagraphConstraints(width: 60));
       _gridLines.add(_GridLine(flameY: flameY, paragraph: para));
       jsonY += niceInterval;
@@ -108,6 +115,46 @@ class Background extends PositionComponent with HasGameReference<FlappyStock> {
           line.flameY - line.paragraph.height / 2,
         ),
       );
+    }
+
+    // X軸の日付ラベル（実データステージのみ）
+    final world = game.world as FlappyWorld;
+    final candles = world.allCandles;
+    if (candles.isEmpty) return;
+
+    final viewportTop = game.camera.viewfinder.position.y;
+    final labelY =
+        viewportTop +
+        gameHeight -
+        groundHeight -
+        _xLabelFontSize -
+        _xLabelBottomPadding;
+    var lastDrawnX = double.negativeInfinity;
+
+    for (final candle in candles) {
+      final label = candle.xLabel;
+      if (label == null) continue;
+
+      final candleCenterX =
+          candle.spawnX - world.traveledX + gameWidth + pipeWidth * 1.5;
+      if (candleCenterX < -pipeWidth || candleCenterX > gameWidth + pipeWidth) {
+        continue;
+      }
+      if (candleCenterX - lastDrawnX < _xLabelMinSpacing) continue;
+
+      final pb =
+          ui.ParagraphBuilder(
+              ui.ParagraphStyle(textDirection: ui.TextDirection.ltr),
+            )
+            ..pushStyle(
+              ui.TextStyle(color: _xLabelColor, fontSize: _xLabelFontSize),
+            )
+            ..addText(label);
+      final para = pb.build()..layout(const ui.ParagraphConstraints(width: 80));
+
+      final drawX = candleCenterX - para.longestLine / 2;
+      canvas.drawParagraph(para, Offset(drawX, labelY));
+      lastDrawnX = candleCenterX;
     }
   }
 }

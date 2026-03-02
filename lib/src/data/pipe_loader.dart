@@ -15,11 +15,14 @@ class PipeLoader {
 
   static Future<List<StageData>> load() async {
     final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
-    final keys = manifest
-        .listAssets()
-        .where((k) => k.startsWith('assets/data/pipes/') && k.endsWith('.json'))
-        .toList()
-      ..sort();
+    final keys =
+        manifest
+            .listAssets()
+            .where(
+              (k) => k.startsWith('assets/data/pipes/') && k.endsWith('.json'),
+            )
+            .toList()
+          ..sort();
 
     final stages = <StageData>[];
     for (final key in keys) {
@@ -37,8 +40,8 @@ class PipeLoader {
         final maxBody = math.max(candle.open, candle.close);
         assert(
           candle.high >= candle.low &&
-          candle.low <= minBody &&
-          maxBody <= candle.high,
+              candle.low <= minBody &&
+              maxBody <= candle.high,
           '[${stage.id}] invalid OHLC: '
           'high=${candle.high} low=${candle.low} '
           'open=${candle.open} close=${candle.close}',
@@ -67,13 +70,18 @@ class PipeLoader {
     if (avgInterval <= _rawDataThreshold) return stage;
 
     final scale = _targetInterval / avgInterval;
-    final normalized = candles.map((c) => CandleData(
-      spawnX: _targetFirstSpawnX + (c.spawnX - firstX) * scale,
-      high: c.high,
-      low: c.low,
-      open: c.open,
-      close: c.close,
-    )).toList();
+    final normalized = candles
+        .map(
+          (c) => CandleData(
+            spawnX: _targetFirstSpawnX + (c.spawnX - firstX) * scale,
+            high: c.high,
+            low: c.low,
+            open: c.open,
+            close: c.close,
+            xLabel: _formatDateLabelFromUnixSeconds(c.spawnX),
+          ),
+        )
+        .toList();
 
     return StageData(
       id: stage.id,
@@ -85,6 +93,18 @@ class PipeLoader {
     );
   }
 
+  static String _formatDateLabelFromUnixSeconds(double unixSeconds) {
+    final utc = DateTime.fromMillisecondsSinceEpoch(
+      (unixSeconds * 1000).round(),
+      isUtc: true,
+    );
+    final jst = utc.add(const Duration(hours: 9));
+    final y = jst.year.toString().padLeft(4, '0');
+    final m = jst.month.toString().padLeft(2, '0');
+    final d = jst.day.toString().padLeft(2, '0');
+    return '$y/$m/$d';
+  }
+
   /// ステージ内の全ローソク足から Y 範囲を計算し、15% マージンを付与する。
   static StageData _normalizeYScale(StageData stage) {
     final candles = stage.candles;
@@ -93,20 +113,20 @@ class PipeLoader {
     var dataMin = candles.first.low;
     var dataMax = candles.first.high;
     for (final c in candles) {
-      if (c.low  < dataMin) dataMin = c.low;
+      if (c.low < dataMin) dataMin = c.low;
       if (c.high > dataMax) dataMax = c.high;
     }
 
-    final range  = dataMax - dataMin;
+    final range = dataMax - dataMin;
     final margin = range * 0.15;
 
     return StageData(
-      id:       stage.id,
-      name:     stage.name,
+      id: stage.id,
+      name: stage.name,
       pipeSpeed: stage.pipeSpeed,
-      candles:  stage.candles,
-      yMin:     dataMin - margin,
-      yMax:     dataMax + margin,
+      candles: stage.candles,
+      yMin: dataMin - margin,
+      yMax: dataMax + margin,
     );
   }
 }

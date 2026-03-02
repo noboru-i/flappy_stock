@@ -3,3 +3,4 @@ export 'bird.dart';
 export 'candle.dart';
 export 'ground.dart';
 export 'minimap.dart';
+export 'score_popup.dart';

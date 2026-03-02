@@ -7,7 +7,6 @@ import 'data/pipe_loader.dart';
 import 'components/components.dart';
 
 class FlappyWorld extends World with HasGameReference<FlappyStock> {
-
   List<StageData> _stages = [];
   List<StageData> get stages => _stages;
   StageData? _currentStage;
@@ -92,27 +91,31 @@ class FlappyWorld extends World with HasGameReference<FlappyStock> {
 
     // カメラが鳥のY座標を追従
     if (_bird != null) {
-      final targetY = (_bird!.y - gameHeight / 2)
-          .clamp(0.0, stageHeight + groundHeight - gameHeight);
+      final targetY = (_bird!.y - gameHeight / 2).clamp(
+        0.0,
+        stageHeight + groundHeight - gameHeight,
+      );
       game.camera.viewfinder.position = Vector2(0, targetY);
     }
 
     // 出現タイミングに達したローソク足を追加
     while (_pendingCandles.isNotEmpty &&
-           _traveledX >= _pendingCandles.first.spawnX) {
+        _traveledX >= _pendingCandles.first.spawnX) {
       final data = _pendingCandles.removeAt(0);
       _spawnedCandles++;
       final isLast = _spawnedCandles >= _totalCandles;
-      add(Candle(
-        high:     data.high,
-        low:      data.low,
-        open:     data.open,
-        close:    data.close,
-        speed:    speed,
-        isLast:   isLast,
-        getBirdY: () => _bird?.y ?? stageHeight / 2,
-        onScored: _onCandleScored,
-      ));
+      add(
+        Candle(
+          high: data.high,
+          low: data.low,
+          open: data.open,
+          close: data.close,
+          speed: speed,
+          isLast: isLast,
+          getBirdY: () => _bird?.y ?? stageHeight / 2,
+          onScored: _onCandleScored,
+        ),
+      );
     }
   }
 
@@ -127,6 +130,9 @@ class FlappyWorld extends World with HasGameReference<FlappyStock> {
     final inRange = jsonY >= low && jsonY <= high;
 
     if (inRange) {
+      final beforeShares = game.shares.value;
+      final beforeCash = game.cash.value;
+
       final shortPos = game.shortPosition.value;
       if (shortPos != null) {
         // 空売り自動決済（通常取引は実行しない）
@@ -155,6 +161,14 @@ class FlappyWorld extends World with HasGameReference<FlappyStock> {
             }
         }
       }
+
+      final increasedLabel = _buildIncreaseLabel(
+        sharesDelta: game.shares.value - beforeShares,
+        cashDelta: game.cash.value - beforeCash,
+      );
+      if (increasedLabel != null) {
+        _showScorePopup(increasedLabel);
+      }
     }
 
     if (_scoredCandles >= _totalCandles) {
@@ -171,5 +185,38 @@ class FlappyWorld extends World with HasGameReference<FlappyStock> {
       game.finalPrice = finalPx;
       game.playState = PlayState.clear;
     }
+  }
+
+  String? _buildIncreaseLabel({
+    required double sharesDelta,
+    required double cashDelta,
+  }) {
+    if (sharesDelta > 0) {
+      return '+${sharesDelta.toStringAsFixed(1)}株';
+    }
+    if (cashDelta > 0) {
+      return '+¥${_formatCompactCash(cashDelta)}';
+    }
+    return null;
+  }
+
+  String _formatCompactCash(double value) {
+    if (value >= 1000000) {
+      final inM = (value / 1000000);
+      final text = inM.toStringAsFixed(1).replaceFirst(RegExp(r'\.0$'), '');
+      return '${text}M';
+    }
+    if (value >= 1000) {
+      final inK = (value / 1000);
+      final text = inK.toStringAsFixed(1).replaceFirst(RegExp(r'\.0$'), '');
+      return '${text}k';
+    }
+    return value.round().toString();
+  }
+
+  void _showScorePopup(String label) {
+    if (_bird == null) return;
+
+    add(ScorePopup(text: label, position: _bird!.position.clone()));
   }
 }

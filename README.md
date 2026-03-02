@@ -32,3 +32,7 @@ make deploy-firestore  # Firestore ルール・インデックスのみデプロ
 - 画面をタップ（クリック）すると鳥が羽ばたく
 - パイプと地面を避けてスコアを稼ぐ
 - ぶつかったらゲームオーバー。再タップでリトライ
+
+## ドキュメント
+
+- データJSON仕様: [docs/data_json_format.md](docs/data_json_format.md)

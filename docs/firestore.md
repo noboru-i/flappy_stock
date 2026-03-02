@@ -31,9 +31,14 @@ scores/{autoId}
 
 | 操作 | 条件 |
 |---|---|
-| `read` | 認証済みユーザーのみ |
-| `create` | 認証済み かつ `uid` フィールドが自分の UID と一致 |
+| `read` | 認証済み + メール確認済み + `@monstar-lab.com` ドメイン |
+| `create` | `read` の条件 + `uid` フィールドが自分の UID と一致 |
 | `update` / `delete` | 不可 |
+
+### ドメイン制限の補足
+
+- Firestore ルールで `request.auth.token.email` と `email_verified` を検証し、`@monstar-lab.com` のみ許可。
+- この制限はデータアクセス層の制御です（サインイン自体の拒否は Firebase Auth Blocking Functions 側で実施可能）。
 
 ## インデックス
 

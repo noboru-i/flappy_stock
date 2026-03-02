@@ -3,26 +3,48 @@ import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
-  AuthService._();
+  AuthService._() {
+    _auth.authStateChanges().listen((user) async {
+      if (user != null && !_isAllowedEmail(user.email)) {
+        await signOut();
+      }
+    });
+  }
   static final instance = AuthService._();
 
   final _auth = FirebaseAuth.instance;
+  static const _allowedDomain = 'monstar-lab.com';
 
   User? get currentUser => _auth.currentUser;
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
   Future<void> signInWithGoogle() async {
+    UserCredential credential;
     if (kIsWeb) {
       final provider = GoogleAuthProvider();
-      await _auth.signInWithPopup(provider);
+      provider.setCustomParameters({'prompt': 'select_account'});
+      credential = await _auth.signInWithPopup(provider);
     } else {
+      try {
+        await GoogleSignIn.instance.disconnect();
+      } catch (_) {
+        await GoogleSignIn.instance.signOut();
+      }
       final googleUser = await GoogleSignIn.instance.authenticate();
       final auth = googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
+      final oauthCredential = GoogleAuthProvider.credential(
         idToken: auth.idToken,
       );
-      await _auth.signInWithCredential(credential);
+      credential = await _auth.signInWithCredential(oauthCredential);
+    }
+
+    if (!_isAllowedEmail(credential.user?.email)) {
+      await signOut();
+      throw FirebaseAuthException(
+        code: 'unauthorized-domain',
+        message: 'Please sign in with a @$_allowedDomain account.',
+      );
     }
   }
 
@@ -31,5 +53,10 @@ class AuthService {
     if (!kIsWeb) {
       await GoogleSignIn.instance.signOut();
     }
+  }
+
+  bool _isAllowedEmail(String? email) {
+    if (email == null || email.isEmpty) return false;
+    return email.toLowerCase().endsWith('@$_allowedDomain');
   }
 }

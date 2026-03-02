@@ -39,24 +39,22 @@ class _GameAppState extends State<GameApp> {
                       child: GameWidget(
                         game: _game,
                         overlayBuilderMap: {
-                          PlayState.welcome.name: (_, game) =>
-                              OverlayScreen(
-                                title: 'FLAPPY STOCK',
-                                subtitle: 'TAP TO START',
-                                onTap: () => (game as FlappyStock).playState =
-                                    PlayState.stageSelect,
-                              ),
+                          PlayState.welcome.name: (_, game) => OverlayScreen(
+                            title: 'FLAPPY STOCK',
+                            subtitle: 'TAP TO START',
+                            onTap: () => (game as FlappyStock).playState =
+                                PlayState.stageSelect,
+                          ),
                           PlayState.stageSelect.name: (_, game) =>
                               StageSelectScreen(game: game as FlappyStock),
                           PlayState.playing.name: (_, game) =>
                               PlayingOverlay(game: game as FlappyStock),
-                          PlayState.gameOver.name: (_, game) =>
-                              OverlayScreen(
-                                title: 'GAME OVER',
-                                subtitle: 'TAP TO RETRY',
-                                onTap: () => (game as FlappyStock).playState =
-                                    PlayState.stageSelect,
-                              ),
+                          PlayState.gameOver.name: (_, game) => OverlayScreen(
+                            title: 'GAME OVER',
+                            subtitle: 'TAP TO RETRY',
+                            onTap: () => (game as FlappyStock).playState =
+                                PlayState.stageSelect,
+                          ),
                           PlayState.clear.name: (_, game) {
                             final flappyStock = game as FlappyStock;
                             return _ClearOverlay(game: flappyStock);
@@ -164,7 +162,11 @@ class _SignedInBar extends StatelessWidget {
                   ),
                 )
               else
-                const Icon(Icons.account_circle, size: 24, color: Colors.white70),
+                const Icon(
+                  Icons.account_circle,
+                  size: 24,
+                  color: Colors.white70,
+                ),
               const SizedBox(width: 8),
               Text(user.displayName ?? user.email ?? '', style: nameStyle),
             ],
@@ -173,7 +175,10 @@ class _SignedInBar extends StatelessWidget {
             onPressed: () => AuthService.instance.signOut(),
             child: Text(
               'SIGN OUT',
-              style: GoogleFonts.pressStart2p(fontSize: 9, color: Colors.white54),
+              style: GoogleFonts.pressStart2p(
+                fontSize: 9,
+                color: Colors.white54,
+              ),
             ),
           ),
         ],
@@ -183,12 +188,31 @@ class _SignedInBar extends StatelessWidget {
 }
 
 class _SignInButton extends StatelessWidget {
+  Future<void> _handleSignIn(BuildContext context) async {
+    try {
+      await AuthService.instance.signInWithGoogle();
+    } on FirebaseAuthException catch (e) {
+      final message = e.code == 'unauthorized-domain'
+          ? 'モンスターラボのアカウント（@monstar-lab.com）でログインしてください。'
+          : (e.message ?? 'サインインに失敗しました。');
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('サインインに失敗しました。')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: TextButton.icon(
-        onPressed: () => AuthService.instance.signInWithGoogle(),
+        onPressed: () => _handleSignIn(context),
         icon: const Icon(Icons.login, size: 16, color: Colors.white70),
         label: Text(
           'SIGN IN WITH GOOGLE',

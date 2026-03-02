@@ -1,9 +1,15 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isMonstarUser() {
+      return request.auth != null
+          && request.auth.token.email_verified == true
+          && request.auth.token.email.matches('.*@monstar-lab\\.com$');
+    }
+
     match /scores/{scoreId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null
+      allow read: if isMonstarUser();
+      allow create: if isMonstarUser()
                     && request.resource.data.uid == request.auth.uid;
       allow update, delete: if false;
     }

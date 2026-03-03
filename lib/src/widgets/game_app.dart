@@ -1,3 +1,5 @@
+import 'package:web/web.dart' as web;
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
@@ -234,6 +236,10 @@ class _BottomBar extends StatelessWidget {
                       AuthService.instance.signOut();
                     case _MenuAction.tutorial:
                       onShowTutorial();
+                    case _MenuAction.terms:
+                      web.window.open('terms_of_service.html', '_blank');
+                    case _MenuAction.privacy:
+                      web.window.open('privacy_policy.html', '_blank');
                   }
                 },
                 itemBuilder: (_) => [
@@ -278,6 +284,46 @@ class _BottomBar extends StatelessWidget {
                       ],
                     ),
                   ),
+                  PopupMenuItem(
+                    value: _MenuAction.terms,
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.description_outlined,
+                          color: Colors.white70,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '利用規約',
+                          style: GoogleFonts.pressStart2p(
+                            fontSize: 10,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: _MenuAction.privacy,
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.privacy_tip_outlined,
+                          color: Colors.white70,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'プライバシー',
+                          style: GoogleFonts.pressStart2p(
+                            fontSize: 10,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -307,4 +353,4 @@ class _BottomBar extends StatelessWidget {
   }
 }
 
-enum _MenuAction { signIn, signOut, tutorial }
+enum _MenuAction { signIn, signOut, tutorial, terms, privacy }

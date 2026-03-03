@@ -5,10 +5,12 @@ import 'package:google_fonts/google_fonts.dart';
 import '../flappy_stock.dart';
 import '../services/auth_service.dart';
 import '../services/ranking_service.dart';
+import '../services/tutorial_service.dart';
 import 'overlay_screen.dart';
 import 'playing_overlay.dart';
 import 'ranking_list.dart';
 import 'stage_select_screen.dart';
+import 'tutorial_screen.dart';
 
 class GameApp extends StatefulWidget {
   const GameApp({super.key});
@@ -18,8 +20,34 @@ class GameApp extends StatefulWidget {
 }
 
 class _GameAppState extends State<GameApp> {
-  // build の外で生成（毎フレーム再生成を防ぐ）
   late final FlappyStock _game = FlappyStock();
+  bool _showTutorial = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkTutorial();
+  }
+
+  Future<void> _checkTutorial() async {
+    final shown = await TutorialService.instance.isTutorialShown();
+    if (!shown && mounted) {
+      setState(() => _showTutorial = true);
+    }
+  }
+
+  Future<void> _completeTutorial() async {
+    await TutorialService.instance.markTutorialShown();
+    if (mounted) {
+      setState(() => _showTutorial = false);
+    }
+  }
+
+  Future<void> _showTutorialAgain() async {
+    if (mounted) {
+      setState(() => _showTutorial = true);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,47 +55,53 @@ class _GameAppState extends State<GameApp> {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         backgroundColor: const Color(0xff1a1a2e),
-        body: SafeArea(
-          child: Column(
-            children: [
-              Expanded(
-                child: Center(
-                  child: FittedBox(
-                    child: SizedBox(
-                      width: 400,
-                      height: 700,
-                      child: GameWidget(
-                        game: _game,
-                        overlayBuilderMap: {
-                          PlayState.welcome.name: (_, game) => OverlayScreen(
-                            title: 'FLAPPY STOCK',
-                            subtitle: 'TAP TO START',
-                            onTap: () => (game as FlappyStock).playState =
-                                PlayState.stageSelect,
+        body: Stack(
+          children: [
+            SafeArea(
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Center(
+                      child: FittedBox(
+                        child: SizedBox(
+                          width: 400,
+                          height: 700,
+                          child: GameWidget(
+                            game: _game,
+                            overlayBuilderMap: {
+                              PlayState.welcome.name: (_, game) => OverlayScreen(
+                                title: 'FLAPPY STOCK',
+                                subtitle: 'TAP TO START',
+                                onTap: () => (game as FlappyStock).playState =
+                                    PlayState.stageSelect,
+                              ),
+                              PlayState.stageSelect.name: (_, game) =>
+                                  StageSelectScreen(game: game as FlappyStock),
+                              PlayState.playing.name: (_, game) =>
+                                  PlayingOverlay(game: game as FlappyStock),
+                              PlayState.gameOver.name: (_, game) => OverlayScreen(
+                                title: 'GAME OVER',
+                                subtitle: 'TAP TO RETRY',
+                                onTap: () => (game as FlappyStock).playState =
+                                    PlayState.stageSelect,
+                              ),
+                              PlayState.clear.name: (_, game) {
+                                final flappyStock = game as FlappyStock;
+                                return _ClearOverlay(game: flappyStock);
+                              },
+                            },
                           ),
-                          PlayState.stageSelect.name: (_, game) =>
-                              StageSelectScreen(game: game as FlappyStock),
-                          PlayState.playing.name: (_, game) =>
-                              PlayingOverlay(game: game as FlappyStock),
-                          PlayState.gameOver.name: (_, game) => OverlayScreen(
-                            title: 'GAME OVER',
-                            subtitle: 'TAP TO RETRY',
-                            onTap: () => (game as FlappyStock).playState =
-                                PlayState.stageSelect,
-                          ),
-                          PlayState.clear.name: (_, game) {
-                            final flappyStock = game as FlappyStock;
-                            return _ClearOverlay(game: flappyStock);
-                          },
-                        },
+                        ),
                       ),
                     ),
                   ),
-                ),
+                  _BottomBar(onShowTutorial: _showTutorialAgain),
+                ],
               ),
-              _AuthBar(),
-            ],
-          ),
+            ),
+            if (_showTutorial)
+              TutorialScreen(onComplete: _completeTutorial),
+          ],
         ),
       ),
     );
@@ -118,76 +152,121 @@ class _ClearOverlayState extends State<_ClearOverlay> {
   }
 }
 
-class _AuthBar extends StatelessWidget {
+class _BottomBar extends StatelessWidget {
+  const _BottomBar({required this.onShowTutorial});
+
+  final VoidCallback onShowTutorial;
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
       stream: AuthService.instance.authStateChanges,
       builder: (context, snapshot) {
         final user = snapshot.data;
-        if (user != null) {
-          return _SignedInBar(user: user);
-        }
-        return _SignInButton();
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (user != null)
+                Row(
+                  children: [
+                    if (user.photoURL != null)
+                      ClipOval(
+                        child: Image.network(
+                          user.photoURL!,
+                          width: 24,
+                          height: 24,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    else
+                      const Icon(
+                        Icons.account_circle,
+                        size: 24,
+                        color: Colors.white70,
+                      ),
+                    const SizedBox(width: 8),
+                    Text(
+                      user.displayName ?? user.email ?? '',
+                      style: GoogleFonts.pressStart2p(
+                        fontSize: 10,
+                        color: Colors.white70,
+                      ),
+                    ),
+                  ],
+                )
+              else
+                TextButton.icon(
+                  onPressed: () => _handleSignIn(context),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.only(right: 8, top: 4, bottom: 4),
+                  ),
+                  icon: const Icon(Icons.login, size: 16, color: Colors.white70),
+                  label: Text(
+                    'SIGN IN',
+                    style: GoogleFonts.pressStart2p(
+                      fontSize: 9,
+                      color: Colors.white70,
+                    ),
+                  ),
+                ),
+              PopupMenuButton<_MenuAction>(
+                icon: const Icon(Icons.menu, color: Colors.white54, size: 20),
+                color: const Color(0xff2a2a3e),
+                onSelected: (action) {
+                  switch (action) {
+                    case _MenuAction.signIn:
+                      break;
+                    case _MenuAction.signOut:
+                      AuthService.instance.signOut();
+                    case _MenuAction.tutorial:
+                      onShowTutorial();
+                  }
+                },
+                itemBuilder: (_) => [
+                  if (user != null)
+                    PopupMenuItem(
+                      value: _MenuAction.signOut,
+                      child: Row(
+                        children: [
+                          const Icon(Icons.logout, color: Colors.white70, size: 16),
+                          const SizedBox(width: 8),
+                          Text(
+                            'サインアウト',
+                            style: GoogleFonts.pressStart2p(
+                              fontSize: 10,
+                              color: Colors.white70,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  PopupMenuItem(
+                    value: _MenuAction.tutorial,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.help_outline, color: Colors.white70, size: 16),
+                        const SizedBox(width: 8),
+                        Text(
+                          'チュートリアル',
+                          style: GoogleFonts.pressStart2p(
+                            fontSize: 10,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
       },
     );
   }
-}
 
-class _SignedInBar extends StatelessWidget {
-  const _SignedInBar({required this.user});
-
-  final User user;
-
-  @override
-  Widget build(BuildContext context) {
-    final nameStyle = GoogleFonts.pressStart2p(
-      fontSize: 10,
-      color: Colors.white70,
-    );
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              if (user.photoURL != null)
-                ClipOval(
-                  child: Image.network(
-                    user.photoURL!,
-                    width: 24,
-                    height: 24,
-                    fit: BoxFit.cover,
-                  ),
-                )
-              else
-                const Icon(
-                  Icons.account_circle,
-                  size: 24,
-                  color: Colors.white70,
-                ),
-              const SizedBox(width: 8),
-              Text(user.displayName ?? user.email ?? '', style: nameStyle),
-            ],
-          ),
-          TextButton(
-            onPressed: () => AuthService.instance.signOut(),
-            child: Text(
-              'SIGN OUT',
-              style: GoogleFonts.pressStart2p(
-                fontSize: 9,
-                color: Colors.white54,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SignInButton extends StatelessWidget {
   Future<void> _handleSignIn(BuildContext context) async {
     try {
       await AuthService.instance.signInWithGoogle();
@@ -206,19 +285,6 @@ class _SignInButton extends StatelessWidget {
       ).showSnackBar(const SnackBar(content: Text('サインインに失敗しました。')));
     }
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: TextButton.icon(
-        onPressed: () => _handleSignIn(context),
-        icon: const Icon(Icons.login, size: 16, color: Colors.white70),
-        label: Text(
-          'SIGN IN WITH GOOGLE',
-          style: GoogleFonts.pressStart2p(fontSize: 9, color: Colors.white70),
-        ),
-      ),
-    );
-  }
 }
+
+enum _MenuAction { signIn, signOut, tutorial }

@@ -8,6 +8,7 @@ import 'flappy_world.dart';
 import 'config.dart';
 import 'components/components.dart';
 import 'data/pipe_data.dart';
+import 'services/analytics_service.dart';
 
 enum PlayState { welcome, stageSelect, playing, gameOver, clear }
 
@@ -57,6 +58,7 @@ class FlappyStock extends FlameGame with HasCollisionDetection, KeyboardEvents {
   PlayState get playState => _playState;
   set playState(PlayState state) {
     _playState = state;
+    AnalyticsService.instance.logScreenView(state.name);
     switch (state) {
       case PlayState.welcome:
       case PlayState.stageSelect:

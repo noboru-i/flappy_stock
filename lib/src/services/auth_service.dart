@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'analytics_service.dart';
 
 class AuthService {
   AuthService._() {
@@ -46,6 +47,8 @@ class AuthService {
         message: 'Please sign in with a @$_allowedDomain account.',
       );
     }
+
+    await AnalyticsService.instance.logLogin('google');
   }
 
   Future<void> signOut() async {

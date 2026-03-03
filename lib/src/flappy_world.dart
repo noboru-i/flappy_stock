@@ -7,6 +7,7 @@ import 'data/news_loader.dart';
 import 'data/pipe_data.dart';
 import 'data/pipe_loader.dart';
 import 'components/components.dart';
+import 'services/analytics_service.dart';
 
 class FlappyWorld extends World with HasGameReference<FlappyStock> {
   static const _newsBubbleHalfWidth = 130.0;
@@ -77,6 +78,7 @@ class FlappyWorld extends World with HasGameReference<FlappyStock> {
     _spawnedCandles = 0;
 
     _currentStage = stage;
+    AnalyticsService.instance.logSelectStage(stage.id, stage.name);
     _currentStageNews = _newsByStage[stage.id] ?? const {};
     _scheduledNews
       ..clear()
@@ -332,6 +334,10 @@ class FlappyWorld extends World with HasGameReference<FlappyStock> {
       }
 
       game.finalPrice = finalPx;
+      AnalyticsService.instance.logStageClear(
+        stageId: _currentStage!.id,
+        finalValue: game.finalValue,
+      );
       game.playState = PlayState.clear;
     }
   }

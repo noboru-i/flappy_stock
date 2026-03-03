@@ -240,6 +240,11 @@ class _BottomBar extends StatelessWidget {
                       web.window.open('terms_of_service.html', '_blank');
                     case _MenuAction.privacy:
                       web.window.open('privacy_policy.html', '_blank');
+                    case _MenuAction.github:
+                      web.window.open(
+                        'https://github.com/noboru-i/flappy_stock',
+                        '_blank',
+                      );
                   }
                 },
                 itemBuilder: (_) => [
@@ -255,7 +260,7 @@ class _BottomBar extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'サインアウト',
+                            'SIGN OUT',
                             style: GoogleFonts.pressStart2p(
                               fontSize: 10,
                               color: Colors.white70,
@@ -275,7 +280,7 @@ class _BottomBar extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'チュートリアル',
+                          'TUTORIAL',
                           style: GoogleFonts.pressStart2p(
                             fontSize: 10,
                             color: Colors.white70,
@@ -295,7 +300,7 @@ class _BottomBar extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          '利用規約',
+                          'TERMS',
                           style: GoogleFonts.pressStart2p(
                             fontSize: 10,
                             color: Colors.white70,
@@ -315,7 +320,27 @@ class _BottomBar extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'プライバシー',
+                          'PRIVACY',
+                          style: GoogleFonts.pressStart2p(
+                            fontSize: 10,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: _MenuAction.github,
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.code,
+                          color: Colors.white70,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'GitHub',
                           style: GoogleFonts.pressStart2p(
                             fontSize: 10,
                             color: Colors.white70,
@@ -353,4 +378,4 @@ class _BottomBar extends StatelessWidget {
   }
 }
 
-enum _MenuAction { signIn, signOut, tutorial, terms, privacy }
+enum _MenuAction { signIn, signOut, tutorial, terms, privacy, github }

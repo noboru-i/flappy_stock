@@ -69,22 +69,26 @@ class _GameAppState extends State<GameApp> {
                           child: GameWidget(
                             game: _game,
                             overlayBuilderMap: {
-                              PlayState.welcome.name: (_, game) => OverlayScreen(
-                                title: 'FLAPPY STOCK',
-                                subtitle: 'TAP TO START',
-                                onTap: () => (game as FlappyStock).playState =
-                                    PlayState.stageSelect,
-                              ),
+                              PlayState.welcome.name: (_, game) =>
+                                  OverlayScreen(
+                                    title: 'FLAPPY STOCK',
+                                    subtitle: 'TAP TO START',
+                                    onTap: () =>
+                                        (game as FlappyStock).playState =
+                                            PlayState.stageSelect,
+                                  ),
                               PlayState.stageSelect.name: (_, game) =>
                                   StageSelectScreen(game: game as FlappyStock),
                               PlayState.playing.name: (_, game) =>
                                   PlayingOverlay(game: game as FlappyStock),
-                              PlayState.gameOver.name: (_, game) => OverlayScreen(
-                                title: 'GAME OVER',
-                                subtitle: 'TAP TO RETRY',
-                                onTap: () => (game as FlappyStock).playState =
-                                    PlayState.stageSelect,
-                              ),
+                              PlayState.gameOver.name: (_, game) =>
+                                  OverlayScreen(
+                                    title: 'GAME OVER',
+                                    subtitle: 'TAP TO RETRY',
+                                    onTap: () =>
+                                        (game as FlappyStock).playState =
+                                            PlayState.stageSelect,
+                                  ),
                               PlayState.clear.name: (_, game) {
                                 final flappyStock = game as FlappyStock;
                                 return _ClearOverlay(game: flappyStock);
@@ -99,8 +103,7 @@ class _GameAppState extends State<GameApp> {
                 ],
               ),
             ),
-            if (_showTutorial)
-              TutorialScreen(onComplete: _completeTutorial),
+            if (_showTutorial) TutorialScreen(onComplete: _completeTutorial),
           ],
         ),
       ),
@@ -178,6 +181,11 @@ class _BottomBar extends StatelessWidget {
                           width: 24,
                           height: 24,
                           fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => const Icon(
+                            Icons.account_circle,
+                            size: 24,
+                            color: Colors.white38,
+                          ),
                         ),
                       )
                     else
@@ -202,7 +210,11 @@ class _BottomBar extends StatelessWidget {
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.only(right: 8, top: 4, bottom: 4),
                   ),
-                  icon: const Icon(Icons.login, size: 16, color: Colors.white70),
+                  icon: const Icon(
+                    Icons.login,
+                    size: 16,
+                    color: Colors.white70,
+                  ),
                   label: Text(
                     'SIGN IN',
                     style: GoogleFonts.pressStart2p(
@@ -230,7 +242,11 @@ class _BottomBar extends StatelessWidget {
                       value: _MenuAction.signOut,
                       child: Row(
                         children: [
-                          const Icon(Icons.logout, color: Colors.white70, size: 16),
+                          const Icon(
+                            Icons.logout,
+                            color: Colors.white70,
+                            size: 16,
+                          ),
                           const SizedBox(width: 8),
                           Text(
                             'サインアウト',
@@ -246,7 +262,11 @@ class _BottomBar extends StatelessWidget {
                     value: _MenuAction.tutorial,
                     child: Row(
                       children: [
-                        const Icon(Icons.help_outline, color: Colors.white70, size: 16),
+                        const Icon(
+                          Icons.help_outline,
+                          color: Colors.white70,
+                          size: 16,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           'チュートリアル',

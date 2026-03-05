@@ -1,33 +1,47 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
-import 'package:flutter/material.dart';
 import '../flappy_stock.dart';
 import '../config.dart';
 
-class Bird extends CircleComponent
+class Bird extends PositionComponent
     with CollisionCallbacks, HasGameReference<FlappyStock> {
+
+  late SpriteComponent _spriteComponent;
+  late Sprite _spriteUp;
+  late Sprite _spriteDown;
 
   Bird({required super.position})
     : super(
-        radius: birdRadius,
+        size: Vector2.all(birdRadius * 2),
         anchor: Anchor.center,
-        paint: Paint()
-          ..color = const Color(0xffFFD700)
-          ..style = PaintingStyle.fill,
-        children: [CircleHitbox(radius: 1)],
       );
 
   final Vector2 _velocity = Vector2.zero();
   bool _isFlapHeld = false;
   double _flapHoldTime = 0;
 
+  @override
+  Future<void> onLoad() async {
+    _spriteUp = await game.loadSprite('bird_up.png');
+    _spriteDown = await game.loadSprite('bird_down.png');
+
+    _spriteComponent = SpriteComponent(
+      sprite: _spriteDown,
+      size: size.clone(),
+    );
+    add(_spriteComponent);
+    add(CircleHitbox(radius: 1));
+  }
+
   void flapStart() {
     _isFlapHeld = true;
     _flapHoldTime = 0;
+    _spriteComponent.sprite = _spriteUp;
   }
 
   void flapEnd() {
     _isFlapHeld = false;
+    _spriteComponent.sprite = _spriteDown;
   }
 
   @override
@@ -47,18 +61,18 @@ class Bird extends CircleComponent
     position += _velocity * dt;
 
     // 傾き演出（速度に比例して回転）
-    angle = (_velocity.y * 0.002).clamp(-0.5, 1.2);
+    _spriteComponent.angle = (_velocity.y * 0.002).clamp(-0.5, 1.2);
 
     // 天井に当たったら停止
-    if (position.y - radius <= 0) {
+    if (position.y - birdRadius <= 0) {
       _velocity.y = 0;
-      position.y = radius;
+      position.y = birdRadius;
     }
 
     // 地面に当たったら停止
-    if (position.y + radius >= stageHeight) {
+    if (position.y + birdRadius >= stageHeight) {
       _velocity.y = 0;
-      position.y = stageHeight - radius;
+      position.y = stageHeight - birdRadius;
     }
   }
 }

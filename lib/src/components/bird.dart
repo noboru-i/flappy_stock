@@ -60,8 +60,8 @@ class Bird extends PositionComponent
     _velocity.y += gravity * dt;
     position += _velocity * dt;
 
-    // 傾き演出（速度に比例して回転）
-    _spriteComponent.angle = (_velocity.y * 0.002).clamp(-0.5, 1.2);
+    // 傾き演出（速度に比例して回転）- Bird自身を回転させることで中心点を保つ
+    angle = (_velocity.y * 0.002).clamp(-0.5, 1.2);
 
     // 天井に当たったら停止
     if (position.y - birdRadius <= 0) {

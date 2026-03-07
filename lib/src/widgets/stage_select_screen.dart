@@ -50,11 +50,28 @@ class StageSelectScreen extends StatelessWidget {
                             horizontal: 16,
                             vertical: 14,
                           ),
-                          child: Text(
-                            stage.name,
-                            style: stageNameStyle.copyWith(
-                              color: Colors.white,
-                            ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                stage.name,
+                                style: stageNameStyle.copyWith(
+                                  color: Colors.white,
+                                ),
+                              ),
+                              if (stage.candles.isNotEmpty &&
+                                  stage.candles.first.xLabel != null &&
+                                  stage.candles.last.xLabel != null) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${stage.candles.first.xLabel} ~ ${stage.candles.last.xLabel}',
+                                  style: stageNameStyle.copyWith(
+                                    color: Colors.white38,
+                                    fontSize: 8,
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
                       ),

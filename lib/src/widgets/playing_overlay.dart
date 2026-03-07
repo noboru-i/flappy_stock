@@ -115,8 +115,8 @@ class _NewsTicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = GoogleFonts.pressStart2p(
-      fontSize: 8,
+    const textStyle = TextStyle(
+      fontSize: 11,
       color: Colors.black87,
       height: 1.4,
     );

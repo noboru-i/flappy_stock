@@ -56,23 +56,8 @@ class RankingList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'RANKING',
-          style: GoogleFonts.pressStart2p(
-            fontSize: 10,
-            color: const Color(0xff184e77),
-          ),
-        ),
-        const SizedBox(height: 8),
-        if (flexible)
-          Expanded(child: _buildList())
-        else
-          SizedBox(height: 160, child: _buildList()),
-      ],
-    );
+    if (flexible) return _buildList();
+    return SizedBox(height: 160, child: _buildList());
   }
 }
 

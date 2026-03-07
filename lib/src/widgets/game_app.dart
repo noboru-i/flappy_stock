@@ -234,14 +234,129 @@ class _ClearOverlayState extends State<_ClearOverlay> {
     final stageId = widget.game.currentStageId;
     final user = AuthService.instance.currentUser;
 
-    return OverlayScreen(
-      title: 'STAGE CLEAR!',
-      subtitle: 'TAP TO RETRY',
-      finalValue: widget.game.finalValue,
-      rankingWidget: (user != null && stageId != null)
-          ? RankingList(stageId: stageId)
-          : null,
-      onTap: () => widget.game.playState = PlayState.stageSelect,
+    final titleStyle = GoogleFonts.pressStart2p(
+      fontSize: 28,
+      color: Colors.white,
+      shadows: [
+        const Shadow(
+          color: Color(0xff184e77),
+          offset: Offset(2, 2),
+          blurRadius: 4,
+        ),
+      ],
+    );
+    final buttonStyle = GoogleFonts.pressStart2p(
+      fontSize: 14,
+      color: Colors.white,
+    );
+
+    return Stack(
+      children: [
+        // 背景マスク
+        Container(color: Colors.black.withValues(alpha: 0.65)),
+        // コンテンツ
+        Column(
+          children: [
+            // 上部: タイトル・評価額・ボタン
+            Expanded(
+              flex: 3,
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('STAGE CLEAR!', style: titleStyle)
+                          .animate()
+                          .slideY(duration: 750.ms, begin: -3, end: 0),
+                      const SizedBox(height: 32),
+                      // 評価額カード
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 28,
+                          vertical: 20,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          border: Border.all(
+                            color: const Color(0xFF26A69A),
+                            width: 2,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              '評価額',
+                              style: GoogleFonts.pressStart2p(
+                                fontSize: 13,
+                                color: Colors.white70,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              '¥${widget.game.finalValue.toStringAsFixed(0)}',
+                              style: GoogleFonts.pressStart2p(
+                                fontSize: 28,
+                                color: const Color(0xFF26A69A),
+                                shadows: [
+                                  const Shadow(
+                                    color: Color(0xFF26A69A),
+                                    blurRadius: 12,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      SizedBox(
+                        width: 220,
+                        child: ElevatedButton(
+                          onPressed: () =>
+                              widget.game.playState = PlayState.stageSelect,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xff184e77),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          child: Text('RETRY', style: buttonStyle),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            // 下部: ランキング（ログイン時のみ）
+            if (user != null && stageId != null)
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: Column(
+                    children: [
+                      Divider(color: Colors.white24, height: 1),
+                      const SizedBox(height: 8),
+                      Text(
+                        'RANKING',
+                        style: GoogleFonts.pressStart2p(
+                          fontSize: 10,
+                          color: Colors.white38,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Expanded(child: RankingList(stageId: stageId)),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ],
     );
   }
 }

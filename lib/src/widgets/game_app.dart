@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../flappy_stock.dart';
 import '../services/auth_service.dart';
 import '../services/ranking_service.dart';
+import '../utils.dart';
 import '../services/tutorial_service.dart';
 import 'overlay_screen.dart';
 import 'playing_overlay.dart';
@@ -295,7 +296,7 @@ class _ClearOverlayState extends State<_ClearOverlay> {
                             ),
                             const SizedBox(height: 12),
                             Text(
-                              '¥${widget.game.finalValue.toStringAsFixed(0)}',
+                              formatCurrency(widget.game.finalValue),
                               style: GoogleFonts.pressStart2p(
                                 fontSize: 28,
                                 color: const Color(0xFF26A69A),

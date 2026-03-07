@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../utils.dart';
 
 class OverlayScreen extends StatelessWidget {
   const OverlayScreen({
@@ -58,7 +59,7 @@ class OverlayScreen extends StatelessWidget {
                 Text('評価額', style: valueStyle),
                 const SizedBox(height: 8),
                 Text(
-                  '¥${finalValue!.toStringAsFixed(0)}',
+                  formatCurrency(finalValue!),
                   style: GoogleFonts.pressStart2p(
                     fontSize: 20,
                     color: const Color(0xFF26A69A),

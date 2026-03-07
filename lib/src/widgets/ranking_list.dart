@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/auth_service.dart';
 import '../services/ranking_service.dart';
+import '../utils.dart';
 
 class RankingList extends StatelessWidget {
   const RankingList({super.key, required this.stageId, this.flexible = false});
@@ -120,7 +121,7 @@ class _RankingRow extends StatelessWidget {
             ),
           ),
           Text(
-            '¥${entry.finalValue.toStringAsFixed(0)}',
+            formatCurrency(entry.finalValue),
             style: GoogleFonts.pressStart2p(fontSize: 10, color: color),
           ),
         ],

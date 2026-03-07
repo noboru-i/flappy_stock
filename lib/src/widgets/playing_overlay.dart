@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../flappy_stock.dart';
+import '../utils.dart';
 
 class PlayingOverlay extends StatelessWidget {
   const PlayingOverlay({super.key, required this.game});
@@ -72,7 +73,7 @@ class _HudDisplay extends StatelessWidget {
                             children: [
                               Text('現金', style: labelStyle),
                               Text(
-                                '¥${cash.toStringAsFixed(0)}',
+                                formatCurrency(cash),
                                 style: valueStyle,
                               ),
                             ],
@@ -83,7 +84,7 @@ class _HudDisplay extends StatelessWidget {
                               children: [
                                 Text('空売り中', style: shortStyle),
                                 Text(
-                                  '100株@${shortPos.price.toStringAsFixed(0)}',
+                                  '100株@${formatNumber(shortPos.price)}',
                                   style: shortStyle,
                                 ),
                               ],

@@ -364,7 +364,7 @@ class _ModeButton extends StatelessWidget {
         child: Text(
           label,
           textAlign: TextAlign.center,
-          style: GoogleFonts.pressStart2p(fontSize: 9, color: textColor),
+          style: GoogleFonts.pressStart2p(fontSize: 11, color: textColor),
         ),
       ),
     );

@@ -59,20 +59,10 @@ class FlappyStock extends FlameGame with HasCollisionDetection, KeyboardEvents {
   set playState(PlayState state) {
     _playState = state;
     AnalyticsService.instance.logScreenView(state.name);
-    switch (state) {
-      case PlayState.welcome:
-      case PlayState.stageSelect:
-      case PlayState.gameOver:
-      case PlayState.clear:
-        overlays.add(state.name);
-        overlays.remove(PlayState.playing.name);
-      case PlayState.playing:
-        overlays.remove(PlayState.welcome.name);
-        overlays.remove(PlayState.stageSelect.name);
-        overlays.remove(PlayState.gameOver.name);
-        overlays.remove(PlayState.clear.name);
-        overlays.add(PlayState.playing.name);
+    for (final s in PlayState.values) {
+      overlays.remove(s.name);
     }
+    overlays.add(state.name);
   }
 
   void flapStart() => (world as FlappyWorld).flapStart();

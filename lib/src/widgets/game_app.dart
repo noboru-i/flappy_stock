@@ -3,6 +3,7 @@ import 'package:web/web.dart' as web;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../flappy_stock.dart';
 import '../services/auth_service.dart';
@@ -11,6 +12,7 @@ import '../services/tutorial_service.dart';
 import 'overlay_screen.dart';
 import 'playing_overlay.dart';
 import 'ranking_list.dart';
+import 'ranking_screen.dart';
 import 'stage_select_screen.dart';
 import 'tutorial_screen.dart';
 
@@ -72,13 +74,7 @@ class _GameAppState extends State<GameApp> {
                             game: _game,
                             overlayBuilderMap: {
                               PlayState.welcome.name: (_, game) =>
-                                  OverlayScreen(
-                                    title: 'FLAPPY STOCK',
-                                    subtitle: 'TAP TO START',
-                                    onTap: () =>
-                                        (game as FlappyStock).playState =
-                                            PlayState.stageSelect,
-                                  ),
+                                  _WelcomeOverlay(game: game as FlappyStock),
                               PlayState.stageSelect.name: (_, game) =>
                                   StageSelectScreen(game: game as FlappyStock),
                               PlayState.playing.name: (_, game) =>
@@ -109,6 +105,99 @@ class _GameAppState extends State<GameApp> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _WelcomeOverlay extends StatefulWidget {
+  const _WelcomeOverlay({required this.game});
+  final FlappyStock game;
+
+  @override
+  State<_WelcomeOverlay> createState() => _WelcomeOverlayState();
+}
+
+class _WelcomeOverlayState extends State<_WelcomeOverlay> {
+  bool _showRanking = false;
+
+  @override
+  Widget build(BuildContext context) {
+    if (_showRanking) {
+      return RankingScreen(
+        game: widget.game,
+        onClose: () => setState(() => _showRanking = false),
+      );
+    }
+
+    final titleStyle = GoogleFonts.pressStart2p(
+      fontSize: 28,
+      color: const Color(0xff184e77),
+    );
+    final buttonStyle = GoogleFonts.pressStart2p(
+      fontSize: 14,
+      color: Colors.white,
+    );
+
+    return StreamBuilder<User?>(
+      stream: AuthService.instance.authStateChanges,
+      builder: (context, snapshot) {
+        final isLoggedIn = snapshot.data != null;
+        return Container(
+          alignment: const Alignment(0, -0.15),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'FLAPPY\nSTOCK',
+                style: titleStyle,
+                textAlign: TextAlign.center,
+              ).animate().slideY(duration: 750.ms, begin: -3, end: 0),
+              const SizedBox(height: 40),
+              SizedBox(
+                width: 220,
+                child: ElevatedButton(
+                  onPressed: () =>
+                      widget.game.playState = PlayState.stageSelect,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xff184e77),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  child: Text('START', style: buttonStyle),
+                ),
+              ),
+              if (isLoggedIn) ...[
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: 220,
+                  child: OutlinedButton(
+                    onPressed: () => setState(() => _showRanking = true),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xff184e77),
+                      side: const BorderSide(
+                        color: Color(0xff184e77),
+                        width: 2,
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    child: Text(
+                      'RANKING',
+                      style: buttonStyle.copyWith(
+                        color: const Color(0xff184e77),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
     );
   }
 }

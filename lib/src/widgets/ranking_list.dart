@@ -4,9 +4,55 @@ import '../services/auth_service.dart';
 import '../services/ranking_service.dart';
 
 class RankingList extends StatelessWidget {
-  const RankingList({super.key, required this.stageId});
+  const RankingList({super.key, required this.stageId, this.flexible = false});
 
   final String stageId;
+
+  /// true のとき、リストを Expanded で高さいっぱいに広げる（flex 親が必要）。
+  /// false（デフォルト）のとき、固定高さ 160 を使用。
+  final bool flexible;
+
+  Widget _buildList() {
+    return StreamBuilder<List<RankingEntry>>(
+      stream: RankingService.instance.getRanking(stageId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(color: Color(0xFF26A69A)),
+          );
+        }
+        if (snapshot.hasError || !snapshot.hasData) {
+          return Center(
+            child: Text(
+              'ERROR',
+              style: GoogleFonts.pressStart2p(fontSize: 8, color: Colors.red),
+            ),
+          );
+        }
+        final entries = snapshot.data!;
+        if (entries.isEmpty) {
+          return Center(
+            child: Text(
+              'NO SCORES YET',
+              style: GoogleFonts.pressStart2p(
+                fontSize: 8,
+                color: Colors.white38,
+              ),
+            ),
+          );
+        }
+        final currentUid = AuthService.instance.currentUser?.uid;
+        return ListView.builder(
+          itemCount: entries.length,
+          itemBuilder: (context, index) {
+            final entry = entries[index];
+            final isMe = entry.uid == currentUid;
+            return _RankingRow(rank: index + 1, entry: entry, isMe: isMe);
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,58 +61,16 @@ class RankingList extends StatelessWidget {
       children: [
         Text(
           'RANKING',
-          style: GoogleFonts.pressStart2p(fontSize: 10, color: Colors.white70),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 160,
-          child: StreamBuilder<List<RankingEntry>>(
-            stream: RankingService.instance.getRanking(stageId),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(color: Color(0xFF26A69A)),
-                );
-              }
-              if (snapshot.hasError || !snapshot.hasData) {
-                return Center(
-                  child: Text(
-                    'ERROR',
-                    style: GoogleFonts.pressStart2p(
-                      fontSize: 8,
-                      color: Colors.red,
-                    ),
-                  ),
-                );
-              }
-              final entries = snapshot.data!;
-              if (entries.isEmpty) {
-                return Center(
-                  child: Text(
-                    'NO SCORES YET',
-                    style: GoogleFonts.pressStart2p(
-                      fontSize: 8,
-                      color: Colors.white38,
-                    ),
-                  ),
-                );
-              }
-              final currentUid = AuthService.instance.currentUser?.uid;
-              return ListView.builder(
-                itemCount: entries.length,
-                itemBuilder: (context, index) {
-                  final entry = entries[index];
-                  final isMe = entry.uid == currentUid;
-                  return _RankingRow(
-                    rank: index + 1,
-                    entry: entry,
-                    isMe: isMe,
-                  );
-                },
-              );
-            },
+          style: GoogleFonts.pressStart2p(
+            fontSize: 10,
+            color: const Color(0xff184e77),
           ),
         ),
+        const SizedBox(height: 8),
+        if (flexible)
+          Expanded(child: _buildList())
+        else
+          SizedBox(height: 160, child: _buildList()),
       ],
     );
   }
@@ -85,59 +89,54 @@ class _RankingRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isMe ? const Color(0xFF26A69A) : Colors.white70;
+    final color = isMe ? const Color(0xFF26A69A) : Colors.black87;
     final rankColor = switch (rank) {
-      1 => const Color(0xFFFFD700),
-      2 => const Color(0xFFC0C0C0),
-      3 => const Color(0xFFCD7F32),
-      _ => Colors.white38,
+      1 => const Color(0xFFD4A000),
+      2 => const Color(0xFF808080),
+      3 => const Color(0xFF8B4513),
+      _ => Colors.black45,
     };
 
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 2),
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-      decoration: isMe
-          ? BoxDecoration(
-              border: Border.all(color: const Color(0xFF26A69A), width: 1),
-              borderRadius: BorderRadius.circular(4),
-            )
-          : null,
+      margin: const EdgeInsets.symmetric(vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      decoration: const BoxDecoration(color: Colors.white),
       child: Row(
         children: [
           SizedBox(
-            width: 24,
+            width: 28,
             child: Text(
               '$rank',
-              style: GoogleFonts.pressStart2p(fontSize: 8, color: rankColor),
+              style: GoogleFonts.pressStart2p(fontSize: 10, color: rankColor),
             ),
           ),
           if (entry.photoURL != null)
             ClipOval(
               child: Image.network(
                 entry.photoURL!,
-                width: 16,
-                height: 16,
+                width: 20,
+                height: 20,
                 fit: BoxFit.cover,
                 errorBuilder: (_, _, _) => const Icon(
                   Icons.account_circle,
-                  size: 16,
-                  color: Colors.white38,
+                  size: 20,
+                  color: Colors.black38,
                 ),
               ),
             )
           else
-            const Icon(Icons.account_circle, size: 16, color: Colors.white38),
-          const SizedBox(width: 6),
+            const Icon(Icons.account_circle, size: 20, color: Colors.black38),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
               entry.displayName,
-              style: GoogleFonts.pressStart2p(fontSize: 7, color: color),
+              style: GoogleFonts.pressStart2p(fontSize: 9, color: color),
               overflow: TextOverflow.ellipsis,
             ),
           ),
           Text(
             '¥${entry.finalValue.toStringAsFixed(0)}',
-            style: GoogleFonts.pressStart2p(fontSize: 8, color: color),
+            style: GoogleFonts.pressStart2p(fontSize: 10, color: color),
           ),
         ],
       ),

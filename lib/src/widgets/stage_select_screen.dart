@@ -26,9 +26,22 @@ class StageSelectScreen extends StatelessWidget {
       child: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 24),
-            Text('SELECT STAGE', style: titleStyle),
-            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () => game.playState = PlayState.welcome,
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: Color(0xff184e77),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text('SELECT STAGE', style: titleStyle),
+                ],
+              ),
+            ),
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),

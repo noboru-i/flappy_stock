@@ -31,6 +31,14 @@
 
   <title>Flappy Stock</title>
   <link rel="manifest" href="manifest.json">
+  <style>
+    /* Suppress text selection and haptic feedback on long press on mobile */
+    body, canvas {
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+  </style>
 </head>
 <body>
   <!--
